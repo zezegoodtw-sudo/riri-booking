@@ -327,7 +327,7 @@
 
 <div class="header">
   <div class="header-logo">日日居</div>
-  <div class="header-sub">體驗預約 · Sleep Experience Booking</div>
+  <div class="header-sub">體驗預約 · The Sleep Journey</div>
 </div>
 
 <div class="steps" id="step-bar">
@@ -358,6 +358,22 @@
 </div>
 
 <div class="main">
+
+  <!-- ── LOOKUP: 查詢預約 ── -->
+  <div id="lookup-section" style="margin-top:8px;">
+    <div style="text-align:center;padding:4px 0 16px;">
+      <button onclick="toggleLookup()" style="background:none;border:none;color:var(--ink3);font-size:13px;cursor:pointer;text-decoration:underline;">查詢已有的預約</button>
+    </div>
+    <div id="lookup-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;">
+      <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:12px;">查詢預約</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px;">輸入預約時填寫的手機號碼</div>
+      <div style="display:flex;gap:8px;">
+        <input class="form-input" type="tel" id="lookup-phone" placeholder="0912345678" maxlength="10" style="flex:1;">
+        <button onclick="lookupBooking()" style="padding:12px 16px;background:var(--moss);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;cursor:pointer;white-space:nowrap;">查詢</button>
+      </div>
+      <div id="lookup-result" style="margin-top:14px;"></div>
+    </div>
+  </div>
 
   <!-- ── STEP 1: LOCATION ── -->
   <div id="step1" class="fade-in">
@@ -438,6 +454,12 @@
 
 
     <div class="form-group">
+      <label class="form-label">Email（選填）</label>
+      <input class="form-input" type="email" id="f-email" placeholder="example@gmail.com">
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">填寫後將自動寄送預約確認信與前一天提醒信</div>
+    </div>
+
+    <div class="form-group">
       <label class="form-label">體驗人數 <span class="req">*</span></label>
       <div class="form-select-wrap">
         <select class="form-select" id="f-pax" onchange="validateForm()">
@@ -487,6 +509,12 @@
       <input class="form-input" type="text" id="f-leader" placeholder="請填寫團主名稱" oninput="validateForm()">
     </div>
 
+    <div class="form-group" id="social-account-row" style="display:none">
+      <label class="form-label" id="social-account-label">Facebook 帳號（選填）</label>
+      <input class="form-input" type="text" id="f-social" placeholder="請填寫帳號名稱或網址">
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們在社群媒體與您聯繫</div>
+    </div>
+
     <div class="form-group">
       <label class="form-label">備註（選填）</label>
       <textarea class="form-textarea" id="f-note" placeholder="有任何特殊需求或想讓我們事先了解的事項，歡迎填寫"></textarea>
@@ -510,10 +538,12 @@
       </div>
       <div class="confirm-row"><div class="confirm-key">預約大名</div><div class="confirm-val" id="c-name"></div></div>
       <div class="confirm-row"><div class="confirm-key">聯絡電話</div><div class="confirm-val" id="c-phone"></div></div>
+      <div class="confirm-row" id="c-email-row" style="display:none"><div class="confirm-key">Email</div><div class="confirm-val" id="c-email"></div></div>
       <div class="confirm-row"><div class="confirm-key">體驗人數</div><div class="confirm-val" id="c-pax"></div></div>
       <div class="confirm-row"><div class="confirm-key">主要體驗商品</div><div class="confirm-val" id="c-product"></div></div>
       <div class="confirm-row"><div class="confirm-key">從哪得知日日居</div><div class="confirm-val" id="c-source"></div></div>
       <div class="confirm-row" id="c-leader-row" style="display:none"><div class="confirm-key">團主名稱</div><div class="confirm-val" id="c-leader"></div></div>
+      <div class="confirm-row" id="c-social-row" style="display:none"><div class="confirm-key">社群帳號</div><div class="confirm-val" id="c-social"></div></div>
       <div class="confirm-row" id="c-note-row"><div class="confirm-key">備註</div><div class="confirm-val" id="c-note"></div></div>
     </div>
 
@@ -652,6 +682,7 @@ function goStep(n) {
   updateStepBar(n);
   if (n === 2) renderCal();
   if (n === 3) renderSlots();
+  if (n === 4) applyUTMSource();
   if (n === 5) renderConfirm();
   window.scrollTo(0, 0);
 }
@@ -756,6 +787,27 @@ function sourceChanged() {
   const row = document.getElementById('group-leader-row');
   row.style.display = src === '團購' ? '' : 'none';
   if (src !== '團購') document.getElementById('f-leader').value = '';
+
+  // 更新社群帳號欄位
+  const socialRow = document.getElementById('social-account-row');
+  const socialLabel = document.getElementById('social-account-label');
+  const socialInput = document.getElementById('f-social');
+  if (src === 'Facebook') {
+    socialRow.style.display = '';
+    socialLabel.textContent = 'Facebook 帳號（選填）';
+    socialInput.placeholder = '請填寫 Facebook 帳號名稱';
+  } else if (src === '廣告推播') {
+    socialRow.style.display = '';
+    socialLabel.textContent = 'Facebook 帳號（選填）';
+    socialInput.placeholder = '請填寫 Facebook 帳號名稱';
+  } else if (src === 'Line' || src === 'Instagram') {
+    socialRow.style.display = '';
+    socialLabel.textContent = src + ' 帳號（選填）';
+    socialInput.placeholder = '請填寫 ' + src + ' 帳號名稱';
+  } else {
+    socialRow.style.display = 'none';
+    socialInput.value = '';
+  }
   validateForm();
 }
 
@@ -777,6 +829,14 @@ function validateForm() {
   const product = document.getElementById('f-product').value;
   const source = document.getElementById('f-source').value;
   const leader = document.getElementById('f-leader').value.trim();
+  const emailVal = document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : '';
+  const emailConfirmRow = document.getElementById('c-email-row');
+  if (emailVal && emailConfirmRow) {
+    emailConfirmRow.style.display = '';
+    document.getElementById('c-email').textContent = emailVal;
+  } else if (emailConfirmRow) {
+    emailConfirmRow.style.display = 'none';
+  }
   const needLeader = source === '團購';
   const ok = name && phoneOk && pax && product && source && (!needLeader || leader);
   document.getElementById('btn4').disabled = !ok;
@@ -802,6 +862,14 @@ function renderConfirm() {
   document.getElementById('c-product').textContent = document.getElementById('f-product').value;
   document.getElementById('c-source').textContent  = document.getElementById('f-source').value;
   const leader = document.getElementById('f-leader').value.trim();
+  const emailVal = document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : '';
+  const emailConfirmRow = document.getElementById('c-email-row');
+  if (emailVal && emailConfirmRow) {
+    emailConfirmRow.style.display = '';
+    document.getElementById('c-email').textContent = emailVal;
+  } else if (emailConfirmRow) {
+    emailConfirmRow.style.display = 'none';
+  }
   const leaderRow = document.getElementById('c-leader-row');
   if (leader) {
     leaderRow.style.display = '';
@@ -809,12 +877,83 @@ function renderConfirm() {
   } else {
     leaderRow.style.display = 'none';
   }
+  const social = document.getElementById('f-social').value.trim();
+  const socialRow = document.getElementById('c-social-row');
+  const srcVal = document.getElementById('f-source').value;
+  if (social) {
+    socialRow.style.display = '';
+    document.getElementById('c-social').textContent = social;
+  } else {
+    socialRow.style.display = 'none';
+  }
   const note = document.getElementById('f-note').value.trim();
   document.getElementById('c-note').textContent = note || '（無）';
   document.getElementById('c-note-row').style.display = '';
 }
 
 /* ── SUBMIT ── */
+// ── UTM 來源偵測 ────────────────────────────────────────
+function getUTMSource() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('source') || params.get('utm_source') || '';
+}
+
+function applyUTMSource() {
+  const source = getUTMSource();
+  const map = {
+    'facebook': 'Facebook',
+    'fb':       'Facebook',
+    'instagram':'Instagram',
+    'ig':       'Instagram',
+    'line':     'Line',
+    'web':      '官方網站',
+  };
+  const mapped = map[source.toLowerCase()];
+  if (mapped) {
+    const sel = document.getElementById('f-source');
+    if (sel) sel.value = mapped;
+  }
+}
+
+// ── 查詢預約 ─────────────────────────────────────────────
+function toggleLookup() {
+  const panel = document.getElementById('lookup-panel');
+  panel.style.display = panel.style.display === 'none' ? '' : 'none';
+}
+
+async function lookupBooking() {
+  const phone = document.getElementById('lookup-phone').value.replace(/[-\s]/g,'');
+  const result = document.getElementById('lookup-result');
+  if (!/^09\d{8}$/.test(phone)) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請輸入正確的10碼手機號碼</div>';
+    return;
+  }
+  result.innerHTML = '<div style="color:var(--ink3);font-size:13px;">查詢中...</div>';
+  try {
+    const resp = await fetch(API_URL + '?action=lookup&phone=' + phone);
+    const data = await resp.json();
+    if (!data.success || !data.bookings || data.bookings.length === 0) {
+      result.innerHTML = '<div style="color:var(--ink3);font-size:13px;text-align:center;padding:12px;">找不到此電話的預約紀錄</div>';
+      return;
+    }
+    let html = '';
+    data.bookings.forEach(b => {
+      const statusColor = b.status === '已確認' ? '#0F6E56' : b.status === '已取消' ? '#993C1D' : '#BA7517';
+      html += \`<div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;background:var(--paper);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-size:14px;font-weight:500;color:var(--ink);">\${b.location}</div>
+          <div style="font-size:12px;font-weight:500;color:\${statusColor};">\${b.status}</div>
+        </div>
+        <div style="font-size:13px;color:var(--ink2);">\${b.date} \${b.time}</div>
+        <div style="font-size:12px;color:var(--ink3);margin-top:4px;">\${b.name} · \${b.pax}人 · \${b.product}</div>
+      </div>\`;
+    });
+    result.innerHTML = html;
+  } catch(e) {
+    result.innerHTML = '<div style="color:var(--ink3);font-size:13px;text-align:center;padding:12px;">查詢失敗，請稍後再試</div>';
+  }
+}
+
 const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
 
 async function submitBooking() {
@@ -832,7 +971,9 @@ async function submitBooking() {
     product:  document.getElementById('f-product').value,
     source:   document.getElementById('f-source').value,
     leader:   document.getElementById('f-leader').value.trim(),
-    note:     document.getElementById('f-note').value.trim()
+    note:     document.getElementById('f-note').value.trim(),
+    social:   document.getElementById('f-social').value.trim(),
+    email:    document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : ''
   };
 
   try {

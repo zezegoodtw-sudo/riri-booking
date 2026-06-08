@@ -622,8 +622,18 @@ const state = {
 
 // ── 時段設定 ──────────────────────────────────────────
 // 台北民生：只有週六(6)、週日(0)開放
-// MYZOO：週一至週五，開放 10,11,14,15,16,17
+// MYZOO：週一至週五，開放 10,11,14,15,16
 // 後台可透過 Google Sheets「時段設定」頁籤覆蓋
+
+// 台灣 2026 國定假日（MYZOO 逢假日自動休息）
+const TW_HOLIDAYS_2026 = {
+  '2026-01-01':true,'2026-01-26':true,'2026-01-27':true,'2026-01-28':true,
+  '2026-01-29':true,'2026-01-30':true,'2026-02-28':true,'2026-04-03':true,
+  '2026-04-04':true,'2026-04-05':true,'2026-04-06':true,'2026-05-01':true,
+  '2026-06-19':true,'2026-06-20':true,'2026-06-21':true,'2026-09-25':true,
+  '2026-09-26':true,'2026-09-27':true,'2026-09-28':true,'2026-10-09':true,
+  '2026-10-10':true,'2026-10-25':true,'2026-10-26':true,'2026-12-25':true,
+};
 
 const SCHEDULE = {
   minsheng: {
@@ -632,7 +642,7 @@ const SCHEDULE = {
     // 特定日期覆蓋
     overrides: {
       '2026-6-6':  { full: true },
-      '2026-6-7':  { slots: [17] },          // 其他已滿，只剩17:00
+      '2026-6-7':  { slots: [17] },
       '2026-6-13': { slots: [13, 17] },
       '2026-6-14': { full: true },
       '2026-6-20': { full: true },
@@ -644,21 +654,26 @@ const SCHEDULE = {
   myzoo: {
     openDays: [1, 2, 3, 4, 5], // 週一至週五
     defaultSlots: [10, 11, 14, 15, 16],
-    overrides: {
-      '2026-6-19': { closed: true }, // 端午節
-    }
+    overrides: {}
   }
 };
 
 function getDateKey(y, m, d) { return y + '-' + (m+1) + '-' + d; }
 
+// MYZOO 國定假日自動休息
+function isMyzooHolidayClosed(loc, y, m, d) {
+  if (loc !== 'myzoo') return false;
+  const isoKey = y + '-' + String(m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+  return isoKey in TW_HOLIDAYS_2026;
+}
+
 function getDateStatus(loc, y, m, d) {
+  if (isMyzooHolidayClosed(loc, y, m, d)) return 'closed';
   const schedule = SCHEDULE[loc];
   if (!schedule) return 'closed';
   const key = getDateKey(y, m, d);
   const dow = new Date(y, m, d).getDay();
   const override = schedule.overrides[key];
-
   if (override) {
     if (override.closed) return 'closed';
     if (override.full)   return 'full';
@@ -669,11 +684,13 @@ function getDateStatus(loc, y, m, d) {
 }
 
 function getAvailableSlots(loc, y, m, d) {
+  if (isMyzooHolidayClosed(loc, y, m, d)) return [];
   const schedule = SCHEDULE[loc];
   if (!schedule) return [];
   const key = getDateKey(y, m, d);
   const override = schedule.overrides[key];
   if (override && override.slots) return override.slots;
+  if (override && (override.full || override.closed)) return [];
   return schedule.defaultSlots;
 }
 
@@ -686,14 +703,14 @@ function selectLocation(loc) {
   document.getElementById('btn1').disabled = false;
 }
 
-function goStep(n) {
+async function goStep(n) {
   for (let i = 1; i <= 6; i++) {
     const el = document.getElementById('step' + i);
     if (el) el.style.display = i === n ? '' : 'none';
   }
   updateStepBar(n);
   if (n === 2) renderCal();
-  if (n === 3) renderSlots();
+  if (n === 3) await renderSlots();
   if (n === 4) applyUTMSource();
   if (n === 5) renderConfirm();
   window.scrollTo(0, 0);
@@ -708,8 +725,46 @@ function updateStepBar(active) {
   }
 }
 
+/* ── 預約開放月份控制 ──────────────────────────────────
+   規則：
+   - 隨時可預約本月剩餘日期
+   - 當月 1日~25日：只開放本月
+   - 當月26日起：開放本月 + 整個下個月
+   - 下下個月以後永遠不開放
+   例：5/26 起開放整個6月；6/26 起開放整個7月
+─────────────────────────────────────────────────────── */
+function getBookableRange() {
+  const now = new Date(); now.setHours(0,0,0,0);
+  const thisY = now.getFullYear();
+  const thisM = now.getMonth();
+
+  // 最大可預約月份：26號前=本月，26號起=下個月
+  let maxY = thisY, maxM = thisM;
+  if (now.getDate() >= 26) {
+    maxM++;
+    if (maxM > 11) { maxM = 0; maxY++; }
+  }
+  return { minY: thisY, minM: thisM, maxY, maxM };
+}
+
+function isMonthAllowed(y, m) {
+  const { minY, minM, maxY, maxM } = getBookableRange();
+  const cur  = y * 12 + m;
+  const min  = minY * 12 + minM;
+  const max  = maxY * 12 + maxM;
+  return cur >= min && cur <= max;
+}
+
 /* ── CALENDAR ── */
 function renderCal() {
+  const { maxY, maxM, minY, minM } = getBookableRange();
+
+  // 月份導航按鈕：超出範圍就隱藏
+  const prevOk = isMonthAllowed(viewYear, viewMonth - 1 < 0 ? 11 : viewMonth - 1);
+  const nextOk = isMonthAllowed(viewYear, viewMonth + 1 > 11 ? 0  : viewMonth + 1);
+  document.querySelector('.cal-nav-btn:first-child').style.visibility = prevOk ? '' : 'hidden';
+  document.querySelector('.cal-nav-btn:last-child').style.visibility  = nextOk ? '' : 'hidden';
+
   document.getElementById('cal-month-label').textContent = viewYear + '年 ' + MONTHS[viewMonth];
   const grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
@@ -722,9 +777,7 @@ function renderCal() {
   for (let day = 1; day <= total; day++) {
     const d = document.createElement('div');
     const date = new Date(viewYear, viewMonth, day);
-    const key = viewYear + '-' + (viewMonth + 1) + '-' + day;
-    const dow = date.getDay();
-    const isPast = date < new Date(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate());
+    const isPast = date < TODAY;
     const loc = state.location || 'minsheng';
     const dateStatus = getDateStatus(loc, viewYear, viewMonth, day);
     const isSelected = state.year === viewYear && state.month === viewMonth && state.day === day;
@@ -752,14 +805,18 @@ function selectDay(y, m, day) {
 }
 
 function changeMonth(dir) {
-  viewMonth += dir;
-  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-  if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+  let newMonth = viewMonth + dir;
+  let newYear  = viewYear;
+  if (newMonth > 11) { newMonth = 0; newYear++; }
+  if (newMonth < 0)  { newMonth = 11; newYear--; }
+  if (!isMonthAllowed(newYear, newMonth)) return; // 超出範圍不切換
+  viewMonth = newMonth;
+  viewYear  = newYear;
   renderCal();
 }
 
 /* ── SLOTS ── */
-function renderSlots() {
+async function renderSlots() {
   const dow = new Date(state.year, state.month, state.day).getDay();
   const label = (state.month+1) + '月' + state.day + '日（星期' + DAYS_ZH[dow] + '）可用時段';
   document.getElementById('slot-date-label').textContent = label;
@@ -767,20 +824,66 @@ function renderSlots() {
   const loc = state.location || 'minsheng';
   const availSlots = getAvailableSlots(loc, state.year, state.month, state.day);
   const grid = document.getElementById('slot-grid');
-  grid.innerHTML = '';
+
+  // 顯示載入中
+  grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">載入時段中…</div>';
 
   if (availSlots.length === 0) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">此日期暫無可預約時段</div>';
     return;
   }
 
+  // 從 API 取得當月已預約時段
+  const dateStr = state.year + '/' + String(state.month+1).padStart(2,'0');
+  const locName = loc === 'minsheng' ? '民生' : 'MYZOO';
+  let bookedHours = new Set();
+  try {
+    const r = await fetch(API_URL + '?action=getBookings&ym=' + encodeURIComponent(dateStr));
+    const d = await r.json();
+    if (d.success && d.bookings) {
+      const targetDate = state.year + '/' +
+        String(state.month+1).padStart(2,'0') + '/' +
+        String(state.day).padStart(2,'0');
+      d.bookings.forEach(b => {
+        // 只算同地點、同日期、狀態為待確認或已確認的預約
+        if (!b.location.includes(locName)) return;
+        if (!['待確認','已確認'].includes(b.status)) return;
+        // 比對日期（API 回傳已格式化，需比對原始或標準化）
+        const bDate = b.date.replace(/\./g, '/').replace(/\s.+/, ''); // "2026.6.9 星期二" → "2026/6/9"
+        // 標準化成 yyyy/MM/dd 比對
+        const normB = bDate.split('/').map((v,i) => i===0 ? v : v.padStart(2,'0')).join('/');
+        if (normB !== targetDate) return;
+        const h = parseInt(b.time);
+        if (!isNaN(h)) bookedHours.add(h);
+      });
+    }
+  } catch(e) {
+    // API 失敗不擋，只是不標記已佔用
+    console.warn('無法取得已預約時段', e);
+  }
+
+  grid.innerHTML = '';
+
+  // 若所有開放時段都已被預約
+  const freeSlots = availSlots.filter(h => !bookedHours.has(h));
+  if (freeSlots.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">此日期所有時段已被預約</div>';
+    return;
+  }
+
   availSlots.forEach(h => {
     const div = document.createElement('div');
-    div.className = 'slot';
     const hStr = String(h).padStart(2,'0');
     const hNext = String(h+1).padStart(2,'0');
-    div.innerHTML = '<span>' + hStr + ':00</span><div class="slot-sub">' + hStr + ':00 – ' + hNext + ':00</div>';
-    div.onclick = () => selectSlot(h, div);
+    if (bookedHours.has(h)) {
+      // 已被預約：顯示但不可點
+      div.className = 'slot taken';
+      div.innerHTML = '<span>' + hStr + ':00</span><div class="slot-sub">已預約</div>';
+    } else {
+      div.className = 'slot';
+      div.innerHTML = '<span>' + hStr + ':00</span><div class="slot-sub">' + hStr + ':00 – ' + hNext + ':00</div>';
+      div.onclick = () => selectSlot(h, div);
+    }
     grid.appendChild(div);
   });
 }

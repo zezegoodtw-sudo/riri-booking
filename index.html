@@ -973,6 +973,40 @@ function applyUTMSource() {
 }
 
 // ── 查詢預約 ─────────────────────────────────────────────
+function formatLookupDate(dateVal) {
+  var days = ['日','一','二','三','四','五','六'];
+  var d;
+  if (!dateVal) return '';
+  var s = dateVal.toString();
+  // Handle "Tue Jun 09 2026..." format
+  if (s.includes('GMT') || s.includes('Standard')) {
+    d = new Date(s);
+  } else {
+    var parts = s.split('/');
+    if (parts.length === 3) d = new Date(parts[0], parseInt(parts[1])-1, parts[2]);
+    else d = new Date(s);
+  }
+  if (isNaN(d.getTime())) return s;
+  return d.getFullYear() + '.' + (d.getMonth()+1) + '.' + d.getDate() + ' 星期' + days[d.getDay()];
+}
+
+function formatLookupTime(timeVal) {
+  if (!timeVal) return '';
+  var s = timeVal.toString();
+  // Handle "Sat Dec 30 1899 16:00:00..." format
+  if (s.includes('GMT') || s.includes('Standard')) {
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) {
+      var h = d.getHours();
+      return String(h).padStart(2,'0') + ':00 – ' + String(h+1).padStart(2,'0') + ':00';
+    }
+  }
+  // Handle "16:00" or "16" format
+  var h = parseInt(s.includes(':') ? s.split(':')[0] : s);
+  if (isNaN(h)) return s;
+  return String(h).padStart(2,'0') + ':00 – ' + String(h+1).padStart(2,'0') + ':00';
+}
+
 function toggleLookup() {
   const panel = document.getElementById('lookup-panel');
   panel.style.display = panel.style.display === 'none' ? '' : 'none';
@@ -996,12 +1030,14 @@ async function lookupBooking() {
     let html = '';
     data.bookings.forEach(function(b) {
       var statusColor = b.status === '已確認' ? '#0F6E56' : b.status === '已取消' ? '#993C1D' : '#BA7517';
+      var dateStr = formatLookupDate(b.date);
+      var timeStr = formatLookupTime(b.time);
       html += '<div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;background:var(--paper);">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
           '<div style="font-size:14px;font-weight:500;color:var(--ink);">' + b.location + '</div>' +
           '<div style="font-size:12px;font-weight:500;color:' + statusColor + ';">' + b.status + '</div>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--ink2);">' + b.date + ' ' + b.time + '</div>' +
+        '<div style="font-size:13px;color:var(--ink2);">' + dateStr + '　' + timeStr + '</div>' +
         '<div style="font-size:12px;color:var(--ink3);margin-top:4px;">' + b.name + ' · ' + b.pax + '人 · ' + b.product + '</div>' +
       '</div>';
     });

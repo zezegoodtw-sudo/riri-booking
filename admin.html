@@ -604,20 +604,38 @@ async function loadBookings() {
     const url = API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym);
     const r = await fetch(url);
     const d = await r.json();
-    console.log('[loadBookings] ym:', ym, 'response:', d);
     if (d.success) {
       bookings = d.bookings || [];
-      console.log('[loadBookings] 載入預約數:', bookings.length, bookings);
+      // ── 視覺 debug：顯示原始回傳資料 ──
+      showDebug('getBookings ym=' + ym + '\n回傳 ' + bookings.length + ' 筆\n\n' +
+        bookings.map(b => b.date + ' | ' + b.time + ' | ' + b.location + ' | ' + b.status + ' | ' + b.name).join('\n'));
       renderBookingsList();
       renderSummaryCards();
       renderCal();
     } else {
       showToast('預約資料載入失敗：' + (d.error || '未知錯誤'), 'error');
+      showDebug('API 錯誤：' + JSON.stringify(d));
     }
   } catch(e) {
-    console.error('[loadBookings] 錯誤:', e);
     showToast('預約資料載入失敗', 'error');
+    showDebug('fetch 失敗：' + e.message);
   }
+}
+
+function showDebug(msg) {
+  let el = document.getElementById('debug-box');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'debug-box';
+    el.style.cssText = 'position:fixed;bottom:16px;right:16px;z-index:999;background:#1a1714;color:#a8e6a3;font-size:11px;font-family:monospace;padding:14px 16px;border-radius:8px;max-width:420px;max-height:260px;overflow-y:auto;white-space:pre;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+    const close = document.createElement('button');
+    close.textContent = '✕';
+    close.style.cssText = 'position:absolute;top:6px;right:8px;background:none;border:none;color:#a8e6a3;cursor:pointer;font-size:12px;';
+    close.onclick = () => el.remove();
+    el.appendChild(close);
+    document.body.appendChild(el);
+  }
+  el.childNodes[0].textContent = msg;
 }
 
 function getYM(y, m) { return y + '/' + String(m+1).padStart(2,'0'); }

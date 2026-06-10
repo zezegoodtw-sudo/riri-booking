@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日日居 後台管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1714;
+  --ink2: #4a4540;
+  --ink3: #8a8480;
+  --paper: #faf8f4;
+  --paper2: #f2efe9;
+  --paper3: #e8e4dc;
+  --moss: #3d5a3e;
+  --moss-light: #e8f0e8;
+  --moss-mid: #6b8f6c;
+  --warm: #c4703a;
+  --warm-light: #faf0e8;
+  --myzoo: #5b4fcf;
+  --myzoo-light: #eeecfa;
+  --confirmed: #0F6E56;
+  --replied: #1a6eb5;
+  --replied-cancel: #7c3aed;
+  --pending: #BA7517;
+  --cancelled: #993C1D;
+  --released: #8a8480;
+  --holiday: #c0392b;
+  --border: rgba(26,23,20,0.12);
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: #f0ede8;
+  color: var(--ink);
+  font-size: 14px;
+  min-height: 100vh;
+}
+
+/* ── LOGIN ── */
+#login-screen {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: #f0ede8;
+}
+.login-box {
+  background: var(--paper);
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 320px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.login-logo {
+  font-family: 'Noto Serif TC', serif;
+  font-size: 22px; font-weight: 300; letter-spacing: 0.2em;
+  color: var(--ink); margin-bottom: 4px;
+}
+.login-sub { font-size: 11px; color: var(--ink3); letter-spacing: 0.1em; margin-bottom: 32px; }
+.login-input {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--paper); font-family: 'Noto Sans TC', sans-serif;
+  font-size: 14px; outline: none; margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.login-input:focus { border-color: var(--moss); }
+.login-btn {
+  width: 100%; padding: 13px;
+  background: var(--moss); color: #fff; border: none;
+  border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+  transition: background 0.2s;
+}
+.login-btn:hover { background: #2e4530; }
+.login-err { font-size: 12px; color: var(--cancelled); margin-top: 10px; }
+
+/* ── LAYOUT ── */
+#app { display: none; flex-direction: column; min-height: 100vh; }
+.topbar {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 52px; flex-shrink: 0;
+}
+.topbar-logo { font-family: 'Noto Serif TC', serif; font-size: 16px; letter-spacing: 0.15em; color: var(--ink); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.sync-btn {
+  font-size: 12px; color: var(--ink3); background: none; border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 12px; cursor: pointer; transition: all 0.2s;
+}
+.sync-btn:hover { border-color: var(--moss); color: var(--moss); }
+.logout-btn { font-size: 12px; color: var(--ink3); background: none; border: none; cursor: pointer; }
+
+.tabs {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  display: flex; padding: 0 24px; gap: 0;
+}
+.tab-btn {
+  padding: 12px 20px; font-size: 13px; color: var(--ink3);
+  background: none; border: none; border-bottom: 2px solid transparent;
+  cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+  transition: all 0.2s; letter-spacing: 0.03em;
+}
+.tab-btn.active { color: var(--moss); border-bottom-color: var(--moss); font-weight: 500; }
+.tab-btn:hover { color: var(--ink2); }
+
+.content { flex: 1; padding: 24px; overflow-y: auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── LOCATION TABS ── */
+.loc-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.loc-tab {
+  padding: 7px 18px; border-radius: 20px; font-size: 13px;
+  border: 1.5px solid var(--border); cursor: pointer;
+  background: var(--paper); color: var(--ink2);
+  transition: all 0.2s; font-family: 'Noto Sans TC', sans-serif;
+}
+.loc-tab.active-ms { background: var(--moss-light); border-color: var(--moss); color: var(--moss); font-weight: 500; }
+.loc-tab.active-mz { background: var(--myzoo-light); border-color: var(--myzoo); color: var(--myzoo); font-weight: 500; }
+
+/* ── CALENDAR ── */
+.cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-title { font-family: 'Noto Serif TC', serif; font-size: 18px; font-weight: 400; color: var(--ink); }
+.cal-nav-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--paper);
+  cursor: pointer; font-size: 15px; color: var(--ink2);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.cal-nav-btn:hover { background: var(--paper2); }
+.cal-wrap {
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.cal-dow-row {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  background: var(--paper2);
+  border-bottom: 1px solid var(--border);
+}
+.cal-dow-cell {
+  padding: 8px 4px; text-align: center;
+  font-size: 11px; color: var(--ink3); letter-spacing: 0.05em;
+}
+.cal-dow-cell.sun { color: #c0392b; }
+.cal-dow-cell.sat { color: #2980b9; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+.cal-cell {
+  min-height: 88px; padding: 8px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: background 0.15s;
+  position: relative; vertical-align: top;
+}
+.cal-cell:nth-child(7n) { border-right: none; }
+.cal-cell.empty { cursor: default; background: var(--paper2); opacity: 0.5; }
+.cal-cell.other-month { cursor: default; opacity: 0.3; }
+.cal-cell:not(.empty):not(.other-month):hover { background: #f5f3ee; }
+.cal-cell.today { background: #f5f8f5; }
+.cal-cell.today .cal-day-num { color: var(--moss); font-weight: 600; }
+.cal-day-num {
+  font-size: 13px; font-weight: 500; color: var(--ink);
+  margin-bottom: 3px;
+  display: flex; align-items: baseline; gap: 4px;
+}
+.cal-dow-label { font-size: 10px; color: var(--ink3); font-weight: 400; }
+.cal-day-num.sun-num .cal-dow-label, .cal-day-num.sun-num { color: #c0392b; }
+.cal-day-num.sat-num .cal-dow-label, .cal-day-num.sat-num { color: #2980b9; }
+.holiday-label {
+  font-size: 9px; color: var(--holiday);
+  margin-bottom: 3px; font-weight: 500;
+}
+.cal-status-badge {
+  display: inline-block; font-size: 10px; padding: 2px 7px;
+  border-radius: 10px; margin-bottom: 4px; font-weight: 500;
+}
+.badge-open    { background: var(--moss-light); color: var(--moss); }
+.badge-full    { background: #fde8e8; color: var(--cancelled); }
+.badge-closed  { background: var(--paper2); color: var(--ink3); }
+.badge-partial { background: #fff8e8; color: var(--pending); }
+.booking-chip {
+  font-size: 10px; padding: 2px 6px; border-radius: 4px;
+  margin-bottom: 2px; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; max-width: 100%;
+  cursor: pointer;
+}
+.chip-confirmed  { background: #e0f2ee; color: var(--confirmed); }
+.chip-pending    { background: #fef6e0; color: var(--pending); }
+.chip-cancelled  { background: #fae8e5; color: var(--cancelled); }
+.chip-released   { background: var(--paper2); color: var(--ink3); }
+
+/* ── DAY MODAL ── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal {
+  background: var(--paper);
+  border-radius: 14px; width: 100%; max-width: 520px;
+  max-height: 85vh; overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--paper); z-index: 1;
+}
+.modal-title { font-family: 'Noto Serif TC', serif; font-size: 16px; color: var(--ink); }
+.modal-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid var(--border); background: none;
+  cursor: pointer; font-size: 14px; color: var(--ink3);
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-body { padding: 20px 24px; }
+.modal-section { margin-bottom: 20px; }
+.modal-section-title {
+  font-size: 11px; color: var(--ink3); letter-spacing: 0.08em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
+.slot-toggle-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.slot-toggle {
+  padding: 8px 14px; border-radius: 6px;
+  border: 1.5px solid var(--border); background: var(--paper);
+  font-size: 13px; cursor: pointer; transition: all 0.15s;
+  font-family: 'Noto Sans TC', sans-serif; color: var(--ink2);
+}
+.slot-toggle.on { border-color: var(--moss); background: var(--moss-light); color: var(--moss); }
+.slot-toggle.on.myzoo { border-color: var(--myzoo); background: var(--myzoo-light); color: var(--myzoo); }
+
+.status-radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.status-radio {
+  padding: 7px 14px; border-radius: 20px;
+  border: 1.5px solid var(--border); background: var(--paper);
+  font-size: 12px; cursor: pointer; transition: all 0.15s;
+  font-family: 'Noto Sans TC', sans-serif; color: var(--ink2);
+}
+.status-radio.active-open   { border-color: var(--moss); background: var(--moss-light); color: var(--moss); }
+.status-radio.active-full   { border-color: var(--cancelled); background: #fde8e8; color: var(--cancelled); }
+.status-radio.active-closed { border-color: var(--ink3); background: var(--paper2); color: var(--ink3); }
+
+.note-input {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--paper); font-family: 'Noto Sans TC', sans-serif;
+  font-size: 13px; outline: none; resize: none;
+  transition: border-color 0.2s;
+}
+.note-input:focus { border-color: var(--moss); }
+
+.booking-list { display: flex; flex-direction: column; gap: 8px; }
+.booking-row {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 12px 14px; background: var(--paper);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.booking-row-left { flex: 1; }
+.booking-row-time { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+.booking-row-info { font-size: 12px; color: var(--ink2); line-height: 1.6; }
+.booking-row-actions { display: flex; flex-direction: column; gap: 5px; flex-shrink: 0; }
+.action-btn {
+  padding: 5px 10px; border-radius: 5px; font-size: 11px;
+  border: 1px solid var(--border); background: none; cursor: pointer;
+  font-family: 'Noto Sans TC', sans-serif; white-space: nowrap;
+  transition: all 0.15s;
+}
+.action-btn.confirm { border-color: var(--confirmed); color: var(--confirmed); }
+.action-btn.confirm:hover { background: #e0f2ee; }
+.action-btn.cancel  { border-color: var(--cancelled); color: var(--cancelled); }
+.action-btn.cancel:hover  { background: #fae8e5; }
+.action-btn.release { border-color: var(--released); color: var(--released); }
+.action-btn.release:hover { background: var(--paper2); }
+.status-pill {
+  display: inline-block; font-size: 10px; padding: 2px 8px;
+  border-radius: 10px; font-weight: 500; margin-left: 6px;
+}
+.pill-confirmed      { background: #e0f2ee; color: var(--confirmed); }
+.pill-replied        { background: #dbeafe; color: var(--replied); }
+.pill-replied-cancel { background: #ede9fe; color: var(--replied-cancel); }
+.pill-pending        { background: #fef6e0; color: var(--pending); }
+.pill-cancelled { background: #fae8e5; color: var(--cancelled); }
+.pill-released  { background: var(--paper2); color: var(--ink3); }
+
+.modal-save-btn {
+  width: 100%; padding: 13px;
+  background: var(--moss); color: #fff; border: none;
+  border-radius: var(--radius-sm); font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: 'Noto Sans TC', sans-serif;
+  transition: background 0.2s; margin-top: 4px;
+}
+.modal-save-btn:hover { background: #2e4530; }
+.modal-save-btn.myzoo-btn { background: var(--myzoo); }
+.modal-save-btn.myzoo-btn:hover { background: #4a3fb0; }
+
+/* ── LEGEND ── */
+.cal-legend {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink3); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── BOOKINGS LIST PANEL ── */
+.filter-row { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; align-items: center; }
+.filter-select {
+  padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--paper); font-family: 'Noto Sans TC', sans-serif; font-size: 13px;
+  outline: none; color: var(--ink); appearance: none; cursor: pointer;
+}
+.filter-select:focus { border-color: var(--moss); }
+.bookings-table-wrap { background: var(--paper); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow); }
+.bookings-table { width: 100%; border-collapse: collapse; }
+.bookings-table th {
+  padding: 10px 14px; text-align: left;
+  background: var(--paper2); font-size: 11px; color: var(--ink3);
+  letter-spacing: 0.05em; font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+.bookings-table td {
+  padding: 10px 14px; font-size: 13px; color: var(--ink2);
+  border-bottom: 1px solid var(--border);
+}
+.bookings-table tr:last-child td { border-bottom: none; }
+.bookings-table tr:hover td { background: #faf8f6; }
+.table-name { color: var(--ink); font-weight: 500; }
+.table-actions { display: flex; gap: 5px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px);
+  background: var(--ink); color: #fff; padding: 11px 20px; border-radius: 8px;
+  font-size: 13px; z-index: 500; transition: transform 0.3s ease;
+  pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { background: var(--confirmed); }
+.toast.error   { background: var(--cancelled); }
+
+/* ── LOADING ── */
+.loading { text-align: center; padding: 40px; color: var(--ink3); font-size: 13px; }
+
+/* ── SUMMARY PANEL ── */
+.summary-header { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.summary-card {
+  background: var(--paper); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 20px;
+  flex: 1; min-width: 120px; box-shadow: var(--shadow);
+}
+.summary-num { font-size: 28px; font-weight: 300; color: var(--ink); font-family: 'Noto Serif TC', serif; }
+.summary-label { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+
+@media (max-width: 640px) {
+  .content { padding: 16px; }
+  .cal-cell { min-height: 64px; padding: 5px; }
+  .cal-day-num { font-size: 12px; }
+  .booking-chip { display: none; }
+  .topbar { padding: 0 16px; }
+  .tabs { padding: 0 16px; }
+  .bookings-table { font-size: 12px; }
+  .bookings-table th, .bookings-table td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">日日居</div>
+    <div class="login-sub">後台管理系統</div>
+    <input class="login-input" type="password" id="pw-input" placeholder="請輸入管理密碼"
+      onkeydown="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" onclick="doLogin()">登入</button>
+    <div class="login-err" id="login-err"></div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">日日居 · 後台</div>
+    <div class="topbar-right">
+      <button class="sync-btn" onclick="loadAll()">⟳ 重新整理</button>
+      <button class="logout-btn" onclick="logout()">登出</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('calendar')">日曆管理</button>
+    <button class="tab-btn" onclick="switchTab('bookings')">預約列表</button>
+  </div>
+  <div class="content">
+    <!-- 通知列 -->
+    <div id="notice-bar" style="background:var(--paper);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;box-shadow:var(--shadow);">
+      <div style="font-size:12px;color:var(--ink3);">載入中…</div>
+    </div>
+
+    <!-- ── CALENDAR PANEL ── -->
+    <div class="panel active" id="panel-calendar">
+      <div class="cal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+          <div class="cal-title" id="cal-title"></div>
+          <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+        </div>
+        <div class="loc-tabs">
+          <button class="loc-tab active-ms" id="loc-ms" onclick="setLoc('minsheng')">民生體驗點</button>
+          <button class="loc-tab" id="loc-mz" onclick="setLoc('myzoo')">MYZOO</button>
+        </div>
+      </div>
+
+      <div class="cal-wrap">
+        <div class="cal-dow-row">
+          <div class="cal-dow-cell sun">日</div>
+          <div class="cal-dow-cell">一</div>
+          <div class="cal-dow-cell">二</div>
+          <div class="cal-dow-cell">三</div>
+          <div class="cal-dow-cell">四</div>
+          <div class="cal-dow-cell">五</div>
+          <div class="cal-dow-cell sat">六</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div class="cal-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--moss)"></div>開放中</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--cancelled)"></div>已額滿</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--ink3)"></div>休息</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pending)"></div>部分開放</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c0392b;opacity:0.6"></div>國定假日</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--confirmed)"></div>已確認預約</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--pending)"></div>待確認預約</div>
+      </div>
+    </div>
+
+    <!-- ── BOOKINGS PANEL ── -->
+    <div class="panel" id="panel-bookings">
+      <!-- 摘要卡片 -->
+      <div id="summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;"></div>
+      <!-- 篩選列 -->
+      <div class="filter-row">
+        <input class="filter-select" type="text" id="filter-name" placeholder="🔍 搜尋姓名"
+          oninput="renderBookingsList()"
+          style="min-width:110px;flex:1;max-width:160px;">
+        <select class="filter-select" id="filter-status" onchange="renderBookingsList()">
+          <option value="">全部狀態</option>
+          <option value="待確認">待確認</option>
+          <option value="已確認">已確認</option>
+          <option value="已回覆出席">已回覆出席</option>
+          <option value="已回覆取消">已回覆取消</option>
+          <option value="已取消">已取消</option>
+          <option value="已釋放">已釋放</option>
+          <option value="__cancelled__">已取消／釋放</option>
+        </select>
+        <select class="filter-select" id="filter-loc" onchange="renderBookingsList()">
+          <option value="">全部地點</option>
+          <option value="民生">民生體驗點</option>
+          <option value="MYZOO">MYZOO</option>
+        </select>
+        <select class="filter-select" id="filter-month" onchange="loadBookings()">
+        </select>
+      </div>
+      <div class="bookings-table-wrap">
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>日期 / 時段</th>
+              <th>姓名</th>
+              <th>地點</th>
+              <th>人數</th>
+              <th>商品</th>
+              <th>狀態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── DAY MODAL ── -->
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title"></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
+const ADMIN_PW = 'riri2026'; // ← 可自行更改
+
+// ── 台灣國定假日 2026（依行政院人事行政總處公告） ──────
+// 2026 起新制：取消補班，國定假日逢週末一律補假
+// 新增恢復放假：教師節(9/28)、光復節(10/25)、行憲紀念日(12/25)
+const TW_HOLIDAYS_2026 = {
+  // 元旦
+  '2026-01-01': '元旦',
+  // 農曆春節（除夕+春節三天，逢週一~週五）
+  '2026-01-26': '農曆除夕',
+  '2026-01-27': '春節初一',
+  '2026-01-28': '春節初二',
+  '2026-01-29': '春節初三',
+  '2026-01-30': '春節補假',
+  // 和平紀念日
+  '2026-02-28': '和平紀念日',
+  // 兒童節＋清明（4/4 兒童節、4/5 清明，4/3 補假）
+  '2026-04-03': '兒童節補假',
+  '2026-04-04': '兒童節',
+  '2026-04-05': '清明節',
+  '2026-04-06': '清明補假',
+  // 勞動節
+  '2026-05-01': '勞動節',
+  // 端午節（6/19 週五，連假 6/19~6/21）
+  '2026-06-19': '端午節',
+  '2026-06-20': '端午連假',
+  '2026-06-21': '端午連假',
+  // 中秋節（9/25 週五）＋教師節（9/28 週一）→ 4天連假
+  '2026-09-25': '中秋節',
+  '2026-09-26': '中秋連假',
+  '2026-09-27': '中秋連假',
+  '2026-09-28': '教師節',
+  // 國慶日（10/10 週六，補假 10/9 週五）
+  '2026-10-09': '國慶補假',
+  '2026-10-10': '國慶日',
+  // 光復節（10/25 週日，補假 10/26 週一）
+  '2026-10-25': '台灣光復節',
+  '2026-10-26': '光復節補假',
+  // 行憲紀念日（12/25 週五）
+  '2026-12-25': '行憲紀念日',
+};
+
+// ── STATE ────────────────────────────────────────────────
+let viewYear  = new Date().getFullYear();
+let viewMonth = new Date().getMonth();
+let curLoc    = 'minsheng';
+let schedule  = []; // [{date, location, slots, note}]
+let bookings  = []; // [{bookingId, status, location, date, time, name, ...}]
+const MONTHS_ZH = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+const DOW_ZH    = ['日','一','二','三','四','五','六'];
+
+// 民生預設開放日：週六(6)、週日(0)；MYZOO：週一~五(1-5)
+const DEFAULT_OPEN = { minsheng: [0,6], myzoo: [1,2,3,4,5] };
+const DEFAULT_SLOTS = {
+  minsheng: [13,14,15,16,17],
+  myzoo:    [10,11,14,15,16]
+};
+
+// ── LOGIN ────────────────────────────────────────────────
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  if (pw === ADMIN_PW) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    loadAll();
+  } else {
+    document.getElementById('login-err').textContent = '密碼錯誤';
+  }
+}
+function logout() {
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pw-input').value = '';
+}
+
+// ── TAB ──────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['calendar','bookings'][i] === name);
+  });
+  document.getElementById('panel-calendar').classList.toggle('active', name === 'calendar');
+  document.getElementById('panel-bookings').classList.toggle('active', name === 'bookings');
+}
+
+// ── LOAD ─────────────────────────────────────────────────
+async function loadAll() {
+  await Promise.all([loadSchedule(), loadBookings()]);
+  renderCal();
+}
+
+async function loadSchedule() {
+  try {
+    const r = await fetch(API_URL + '?action=getSchedule');
+    const d = await r.json();
+    if (d.success) schedule = d.rows;
+  } catch(e) { showToast('時段資料載入失敗', 'error'); }
+}
+
+async function loadBookings() {
+  const sel = document.getElementById('filter-month');
+  const ym  = sel && sel.value ? sel.value : getYM(viewYear, viewMonth);
+  try {
+    const url = API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym);
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.success) {
+      bookings = d.bookings || [];
+      renderNoticeBar();
+      renderBookingsList();
+      renderSummaryCards();
+      renderCal();
+    } else {
+      showToast('預約資料載入失敗：' + (d.error || '未知錯誤'), 'error');
+      showDebug('API 錯誤：' + JSON.stringify(d));
+    }
+  } catch(e) {
+    showToast('預約資料載入失敗', 'error');
+    showDebug('fetch 失敗：' + e.message);
+  }
+}
+
+function renderNoticeBar() {
+  const bar = document.getElementById('notice-bar');
+  if (!bar) return;
+
+  const now = new Date();
+  const todayStr = now.getFullYear() + '/' +
+    String(now.getMonth()+1).padStart(2,'0') + '/' +
+    String(now.getDate()).padStart(2,'0');
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.getFullYear() + '/' +
+    String(tomorrow.getMonth()+1).padStart(2,'0') + '/' +
+    String(tomorrow.getDate()).padStart(2,'0');
+  const tomorrowLabel = (tomorrow.getMonth()+1) + '/' + tomorrow.getDate() +
+    '（' + ['日','一','二','三','四','五','六'][tomorrow.getDay()] + '）';
+
+  const todayBookings = bookings.filter(b => normalizeDate(b.date) === todayStr);
+  const todayCount = todayBookings.length;
+  const todayConf  = todayBookings.filter(b => ['已確認','已回覆出席'].includes(b.status)).length;
+  const todaySlots = todayBookings
+    .filter(b => ['待確認','已確認','已回覆出席'].includes(b.status))
+    .sort((a,b) => (a.time||'').localeCompare(b.time||''))
+    .map(b => parseTimeHour(b.time) + ' ' + b.name)
+    .join('　');
+
+  const tomorrowBookings = bookings.filter(b =>
+    normalizeDate(b.date) === tomorrowStr &&
+    ['待確認','已確認','已回覆出席'].includes(b.status)
+  );
+  const tomorrowMS    = tomorrowBookings.filter(b => b.location.includes('民生')).length;
+  const tomorrowMZ    = tomorrowBookings.filter(b => b.location.includes('MYZOO')).length;
+  const tomorrowTotal = tomorrowBookings.length;
+
+  const pending   = bookings.filter(b => b.status === '待確認');
+  const dateLabel = now.getMonth()+1 + '/' + now.getDate() + '（' + ['日','一','二','三','四','五','六'][now.getDay()] + '）';
+
+  bar.innerHTML =
+    '<div style="display:flex;gap:6px;align-items:center;">' +
+      '<span style="font-size:12px;color:var(--ink3);">今日</span>' +
+      '<span style="font-size:13px;font-weight:500;color:var(--ink);">' + dateLabel + '</span>' +
+    '</div>' +
+    '<div style="width:1px;height:28px;background:var(--border);"></div>' +
+    (todayCount > 0
+      ? '<div><div style="font-size:11px;color:var(--ink3);margin-bottom:2px;">今日預約</div>' +
+        '<div style="font-size:13px;font-weight:500;color:var(--ink);">' + todayConf + ' / ' + todayCount + ' 筆已確認</div></div>' +
+        (todaySlots ? '<div style="font-size:12px;color:var(--ink2);">' + todaySlots + '</div>' : '')
+      : '<div style="font-size:13px;color:var(--ink3);">今日無預約</div>'
+    ) +
+    '<div style="width:1px;height:28px;background:var(--border);"></div>' +
+    '<div><div style="font-size:11px;color:var(--ink3);margin-bottom:2px;">明日預約 ' + tomorrowLabel + '</div>' +
+    (tomorrowTotal > 0
+      ? '<div style="font-size:13px;font-weight:500;color:var(--ink);display:flex;gap:8px;align-items:center;">' +
+          '<span>' + tomorrowTotal + ' 組</span>' +
+          (tomorrowMS > 0 ? '<span style="font-size:11px;background:var(--moss-light);color:var(--moss);padding:2px 8px;border-radius:10px;">民生 ' + tomorrowMS + '</span>' : '') +
+          (tomorrowMZ > 0 ? '<span style="font-size:11px;background:var(--myzoo-light);color:var(--myzoo);padding:2px 8px;border-radius:10px;">MYZOO ' + tomorrowMZ + '</span>' : '') +
+        '</div>'
+      : '<div style="font-size:13px;color:var(--ink3);">無預約</div>'
+    ) + '</div>' +
+    (pending.length > 0
+      ? '<div style="width:1px;height:28px;background:var(--border);"></div>' +
+        '<div style="display:flex;align-items:center;">' +
+          '<span style="background:#fef6e0;color:var(--pending);font-size:12px;font-weight:500;padding:4px 10px;border-radius:10px;border:1px solid #f5d78a;">⚠ 待確認 ' + pending.length + ' 筆</span>' +
+        '</div>'
+      : ''
+    ) +
+    '<div style="margin-left:auto;">' +
+      '<button id="notice-refresh-btn" style="font-size:12px;color:var(--ink3);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;font-family:inherit;">⟳ 重新整理</button>' +
+    '</div>';
+
+  const refreshBtn = document.getElementById('notice-refresh-btn');
+  if (refreshBtn) refreshBtn.addEventListener('click', loadAll);
+}
+
+function getYM(y, m) { return y + '/' + String(m+1).padStart(2,'0'); }
+
+// ── MONTH FILTER INIT ────────────────────────────────────
+function initMonthFilter() {
+  const sel = document.getElementById('filter-month');
+  sel.innerHTML = '';
+  const now = new Date();
+  for (let i = -1; i <= 3; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const ym = getYM(d.getFullYear(), d.getMonth());
+    const opt = document.createElement('option');
+    opt.value = ym;
+    opt.textContent = d.getFullYear() + '年 ' + MONTHS_ZH[d.getMonth()];
+    if (i === 0) opt.selected = true;
+    sel.appendChild(opt);
+  }
+}
+
+// ── LOCATION TOGGLE ─────────────────────────────────────
+function setLoc(loc) {
+  curLoc = loc;
+  document.getElementById('loc-ms').className = 'loc-tab' + (loc==='minsheng' ? ' active-ms' : '');
+  document.getElementById('loc-mz').className = 'loc-tab' + (loc==='myzoo'    ? ' active-mz' : '');
+  renderCal();
+}
+
+// ── SCHEDULE HELPERS ─────────────────────────────────────
+function getScheduleRow(dateStr, loc) {
+  const locName = loc === 'minsheng' ? '民生體驗點' : 'MYZOO';
+  return schedule.find(r => r.date === dateStr && r.location === locName) || null;
+}
+
+// MYZOO 國定假日／補假自動休息
+function isMyzooHolidayClosed(dateStr, loc) {
+  if (loc !== 'myzoo') return false;
+  const isoKey = dateStr.replace(/\//g, '-');
+  return isoKey in TW_HOLIDAYS_2026;
+}
+
+function getOpenSlots(dateStr, loc) {
+  const [y, m, d] = dateStr.split('/').map(Number);
+  const dow = new Date(y, m-1, d).getDay();
+  // MYZOO：國定假日／補假直接回傳空
+  if (isMyzooHolidayClosed(dateStr, loc)) return [];
+  const row = getScheduleRow(dateStr, loc);
+  if (row) {
+    if (row.slots === '已滿' || row.slots === '休息' || row.slots === '') return [];
+    return row.slots.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+  }
+  return DEFAULT_OPEN[loc].includes(dow) ? DEFAULT_SLOTS[loc] : [];
+}
+
+function getBookingsForDate(dateStr, loc) {
+  const locName = loc === 'minsheng' ? '民生' : 'MYZOO';
+  return bookings.filter(b => {
+    const bNorm = normalizeDate(b.date);
+    return bNorm === dateStr;
+  }).filter(b => b.location.includes(locName));
+}
+
+function normalizeDate(d) {
+  if (!d) return '';
+  // 處理 "2026.6.9 星期二" 或 "2026/06/09" 或 "2026-06-09"
+  const m = d.toString().match(/(\d{4})[\.\-\/](\d{1,2})[\.\-\/](\d{1,2})/);
+  if (m) return m[1] + '/' + m[2].padStart(2,'0') + '/' + m[3].padStart(2,'0');
+  return d;
+}
+
+// 從任意時間格式取出 "HH:00"
+function parseTimeHour(timeVal) {
+  if (!timeVal) return '';
+  const t = timeVal.toString();
+  // 純數字或 "10:00" 格式
+  if (/^\d{1,2}(:\d{2})?$/.test(t.trim())) {
+    return String(parseInt(t)).padStart(2,'0') + ':00';
+  }
+  // "Sat Dec 30 1899 10:00:00 GMT+..." → 取 HH:mm:ss 部分
+  const match = t.match(/(\d{1,2}):(\d{2}):\d{2}/);
+  if (match) return match[1].padStart(2,'0') + ':00';
+  return t;
+}
+
+function getDateStatus(dateStr, loc) {
+  const [y, m, d] = dateStr.split('/').map(Number);
+  const dow = new Date(y, m-1, d).getDay();
+
+  // MYZOO：國定假日自動休息
+  if (isMyzooHolidayClosed(dateStr, loc)) return 'closed';
+
+  // 已設定的 schedule 優先
+  const row = getScheduleRow(dateStr, loc);
+  if (row) {
+    if (row.slots === '已滿') return 'full';
+    if (row.slots === '休息' || row.slots === '') return 'closed';
+    // 有部分時段設定，再看實際預約
+    const openSlots  = row.slots.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+    const bookedCount = getBookingsForDate(dateStr, loc)
+      .filter(b => ['待確認','已確認'].includes(b.status)).length;
+    if (bookedCount >= openSlots.length) return 'full';
+    return 'partial';
+  }
+
+  // 非開放日
+  if (!DEFAULT_OPEN[loc].includes(dow)) return 'closed';
+
+  // 預設開放日：看實際預約數 vs 預設時段數
+  const bookedHours = new Set(
+    getBookingsForDate(dateStr, loc)
+      .filter(b => ['待確認','已確認'].includes(b.status))
+      .map(b => parseInt(b.time))
+  );
+  const defaultSlots = DEFAULT_SLOTS[loc];
+  const freeCount = defaultSlots.filter(h => !bookedHours.has(h)).length;
+  if (freeCount === 0) return 'full';
+  if (bookedHours.size > 0) return 'partial';
+  return 'open';
+}
+
+// ── CALENDAR RENDER ──────────────────────────────────────
+function renderCal() {
+  document.getElementById('cal-title').textContent = viewYear + '年 ' + MONTHS_ZH[viewMonth];
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDow = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth+1, 0).getDate();
+
+  // 填補空格
+  for (let i = 0; i < firstDow; i++) {
+    const c = document.createElement('div');
+    c.className = 'cal-cell empty';
+    grid.appendChild(c);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateObj = new Date(viewYear, viewMonth, day);
+    const dateStr = viewYear + '/' + String(viewMonth+1).padStart(2,'0') + '/' + String(day).padStart(2,'0');
+    const isoKey  = viewYear + '-' + String(viewMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+    const dow     = dateObj.getDay();
+    const isToday = dateObj.getTime() === today.getTime();
+    const holiday = TW_HOLIDAYS_2026[isoKey] || null;
+
+    const status    = getDateStatus(dateStr, curLoc);
+    const dayBookings = getBookingsForDate(dateStr, curLoc);
+
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (isToday ? ' today' : '');
+    cell.onclick = () => openDayModal(dateStr, dow, holiday);
+
+    // 日期數字
+    let numClass = 'cal-day-num';
+    if (dow === 0) numClass += ' sun-num';
+    if (dow === 6) numClass += ' sat-num';
+    cell.innerHTML = `<div class="${numClass}">${day}<span class="cal-dow-label">${DOW_ZH[dow]}</span></div>`;
+
+    // 國定假日
+    if (holiday) {
+      cell.innerHTML += `<div class="holiday-label">🏖 ${holiday}</div>`;
+    }
+
+    // 時段狀態 badge
+    const badgeMap = { open:'badge-open 開放', full:'badge-full 額滿', closed:'badge-closed 休息', partial:'badge-partial 部分' };
+    const [badgeCls, badgeText] = (badgeMap[status] || 'badge-closed 休息').split(' ');
+    cell.innerHTML += `<div class="cal-status-badge ${badgeCls}">${badgeText}</div>`;
+
+    // 預約 chip（最多顯示3個）
+    dayBookings.slice(0, 3).forEach(b => {
+      const chipCls = {待確認:'chip-pending',已確認:'chip-confirmed',已回覆出席:'chip-confirmed',已回覆取消:'chip-cancelled',已取消:'chip-cancelled',已釋放:'chip-released'}[b.status] || 'chip-pending';
+      const timeStr = parseTimeHour(b.time);
+      const replyLabel = b.status === '已回覆出席' ? ' ✓出席' : '';
+      cell.innerHTML += `<div class="booking-chip ${chipCls}" title="${b.name}">${timeStr} ${b.name}${replyLabel}</div>`;
+    });
+    if (dayBookings.length > 3) {
+      cell.innerHTML += `<div style="font-size:10px;color:var(--ink3);">+${dayBookings.length-3} 筆</div>`;
+    }
+
+    grid.appendChild(cell);
+  }
+}
+
+function changeMonth(dir) {
+  viewMonth += dir;
+  if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+  if (viewMonth < 0)  { viewMonth = 11; viewYear--; }
+  loadBookings();
+  renderCal();
+}
+
+// ── DAY MODAL ────────────────────────────────────────────
+function openDayModal(dateStr, dow, holiday) {
+  const [y, m, d] = dateStr.split('/');
+  const locName = curLoc === 'minsheng' ? '民生體驗點' : 'MYZOO';
+  const locColor = curLoc === 'minsheng' ? 'var(--moss)' : 'var(--myzoo)';
+  const statusNow = getDateStatus(dateStr, curLoc);
+  const openSlots = getOpenSlots(dateStr, curLoc);
+  const dayBookings = getBookingsForDate(dateStr, curLoc);
+  const row = getScheduleRow(dateStr, curLoc);
+  const noteVal = row ? row.note : '';
+
+  document.getElementById('modal-title').textContent =
+    y + '/' + m + '/' + d + '（' + DOW_ZH[dow] + '）' +
+    (holiday ? ' · ' + holiday : '') +
+    ' — ' + locName;
+
+  // 判斷目前模式
+  let curMode = statusNow === 'full' ? 'full' : statusNow === 'closed' ? 'closed' : 'open';
+
+  // 時段開關狀態
+  const allSlots = curLoc === 'minsheng' ? [10,11,12,13,14,15,16,17,18,19] : [9,10,11,12,13,14,15,16,17,18];
+  let selectedSlots = new Set(openSlots);
+
+  // 已被預約的時段（待確認＋已確認）
+  const bookedHourSet = new Set(
+    dayBookings
+      .filter(b => ['待確認','已確認'].includes(b.status))
+      .map(b => parseInt(b.time))
+  );
+
+  function buildBody() {
+    const isMyzoo = curLoc === 'myzoo';
+    const btnColor = isMyzoo ? 'myzoo-btn' : '';
+
+    let bookingHtml = '';
+    if (dayBookings.length > 0) {
+      bookingHtml = `<div class="modal-section">
+        <div class="modal-section-title">當日預約（${dayBookings.length} 筆）</div>
+        <div class="booking-list" id="booking-list-${dateStr}">
+          ${dayBookings.map(b => buildBookingRow(b, dateStr)).join('')}
+        </div>
+      </div><hr style="border:none;border-top:1px solid var(--border);margin-bottom:20px;">`;
+    }
+
+    let slotHtml = allSlots.map(h => {
+      const isBooked = bookedHourSet.has(h);
+      const on = selectedSlots.has(h) && curMode === 'open' && !isBooked;
+      if (isBooked) {
+        // 已被預約：灰色劃線，不可點
+        return `<button class="slot-toggle" data-h="${h}"
+          style="color:var(--ink3);text-decoration:line-through;cursor:not-allowed;opacity:0.5;"
+          title="已被預約" disabled>
+          ${String(h).padStart(2,'0')}:00
+        </button>`;
+      }
+      return `<button class="slot-toggle ${on?'on':''}${isMyzoo?' myzoo':''}" 
+        data-h="${h}" onclick="toggleSlot(${h})">${String(h).padStart(2,'0')}:00</button>`;
+    }).join('');
+
+    return `
+      ${bookingHtml}
+      <div class="modal-section">
+        <div class="modal-section-title">時段狀態</div>
+        <div class="status-radio-group" id="status-radios">
+          <button class="status-radio ${curMode==='open'?'active-open':''}" onclick="setMode('open')">開放預約</button>
+          <button class="status-radio ${curMode==='full'?'active-full':''}" onclick="setMode('full')">已額滿</button>
+          <button class="status-radio ${curMode==='closed'?'active-closed':''}" onclick="setMode('closed')">休息 / 關閉</button>
+        </div>
+      </div>
+      <div class="modal-section" id="slot-section" style="${curMode!=='open'?'opacity:0.4;pointer-events:none':''}">
+        <div class="modal-section-title">開放時段（點擊切換）</div>
+        <div class="slot-toggle-grid" id="slot-toggles">${slotHtml}</div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">備註</div>
+        <textarea class="note-input" id="modal-note" rows="2" placeholder="例：剩最後一個時段、特殊安排…">${noteVal}</textarea>
+      </div>
+      <button class="modal-save-btn ${btnColor}" onclick="saveDay('${dateStr}')">儲存此日設定</button>
+    `;
+  }
+
+  window.toggleSlot = function(h) {
+    if (curMode !== 'open') return;
+    if (bookedHourSet.has(h)) return; // 已預約不可切換
+    if (selectedSlots.has(h)) selectedSlots.delete(h); else selectedSlots.add(h);
+    document.querySelectorAll('.slot-toggle:not([disabled])').forEach(el => {
+      const hh = parseInt(el.dataset.h);
+      if (!bookedHourSet.has(hh)) el.classList.toggle('on', selectedSlots.has(hh));
+    });
+  };
+
+  window.setMode = function(mode) {
+    curMode = mode;
+    document.querySelectorAll('.status-radio').forEach(el => {
+      el.className = 'status-radio';
+      if (el.textContent.includes('開放') && mode === 'open') el.classList.add('active-open');
+      if (el.textContent.includes('額滿') && mode === 'full') el.classList.add('active-full');
+      if (el.textContent.includes('休息') && mode === 'closed') el.classList.add('active-closed');
+    });
+    const ss = document.getElementById('slot-section');
+    if (ss) ss.style.cssText = mode !== 'open' ? 'opacity:0.4;pointer-events:none' : '';
+  };
+
+  window.saveDay = async function(ds) {
+    const note = document.getElementById('modal-note').value.trim();
+    const locName = curLoc === 'minsheng' ? '民生體驗點' : 'MYZOO';
+    let slotsStr = '';
+    if (curMode === 'full')   slotsStr = '已滿';
+    else if (curMode === 'closed') slotsStr = '休息';
+    else slotsStr = Array.from(selectedSlots).sort((a,b)=>a-b).join(',');
+
+    // 更新本地 schedule
+    const idx = schedule.findIndex(r => r.date === ds && r.location === locName);
+    const newRow = { date: ds, location: locName, slots: slotsStr, note };
+    if (idx >= 0) schedule[idx] = newRow; else schedule.push(newRow);
+
+    // 儲存到 Sheets
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'saveSchedule', rows: schedule })
+      });
+      showToast('已儲存 · ' + ds, 'success');
+    } catch(err) { showToast('儲存失敗', 'error'); }
+
+    closeModal();
+    renderCal();
+  };
+
+  document.getElementById('modal-body').innerHTML = buildBody();
+  document.getElementById('modal-overlay').style.display = 'flex';
+}
+
+function buildBookingRow(b, dateStr) {
+  const statusMap = {待確認:'pill-pending',已確認:'pill-confirmed',已回覆出席:'pill-replied',已回覆取消:'pill-replied-cancel',已取消:'pill-cancelled',已釋放:'pill-released'};
+  const pillCls = statusMap[b.status] || 'pill-pending';
+  const canConfirm  = b.status === '待確認';
+  const canCancel   = b.status === '待確認' || b.status === '已確認';
+  const canRelease  = b.status === '待確認' || b.status === '已確認';
+  const canReschedule = ['待確認','已確認','已回覆出席'].includes(b.status);
+
+  return `<div class="booking-row" id="brow-${b.bookingId}">
+    <div class="booking-row-left">
+      <div class="booking-row-time">
+        ${b.time || ''}
+        <span class="status-pill ${pillCls}">${b.status}</span>
+      </div>
+      <div class="booking-row-info">
+        ${b.name}・${b.pax}人・${b.product}<br>
+        📞 ${b.phone}${b.email ? '　✉ ' + b.email : ''}
+        ${b.note ? '<br>備註：' + b.note : ''}
+      </div>
+    </div>
+    <div class="booking-row-actions">
+      ${canReschedule ? `<button class="action-btn" style="border-color:#5b4fcf;color:#5b4fcf;" onclick="showRescheduleForm('${b.bookingId}','${b.name}','${dateStr}')">📅 更改</button>` : ''}
+      ${canConfirm ? `<button class="action-btn confirm" onclick="adminAction('${b.bookingId}','已確認','${dateStr}')">✓ 確認</button>` : ''}
+      ${canCancel  ? `<button class="action-btn cancel"  onclick="adminAction('${b.bookingId}','已取消','${dateStr}')">✕ 取消</button>` : ''}
+      ${canRelease ? `<button class="action-btn release" onclick="adminAction('${b.bookingId}','已釋放','${dateStr}')">○ 釋出</button>` : ''}
+    </div>
+  </div>
+  <div id="reschedule-form-${b.bookingId}" style="display:none;padding:12px;background:#f5f3ee;border-radius:8px;margin-top:6px;"></div>`;
+}
+
+function showRescheduleForm(bookingId, name, currentDateStr) {
+  const formDiv = document.getElementById('reschedule-form-' + bookingId);
+  if (!formDiv) return;
+
+  // 切換顯示
+  if (formDiv.style.display !== 'none') { formDiv.style.display = 'none'; return; }
+
+  // 產生未來 60 天的日期選項
+  const dateOpts = [];
+  const today = new Date(); today.setHours(0,0,0,0);
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today); d.setDate(today.getDate() + i);
+    const ds = d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+    const label = (d.getMonth()+1) + '/' + d.getDate() + '（' + ['日','一','二','三','四','五','六'][d.getDay()] + '）';
+    dateOpts.push(`<option value="${ds}" ${ds === currentDateStr ? 'selected' : ''}>${label}</option>`);
+  }
+
+  // 時段選項
+  const slotOpts = [9,10,11,12,13,14,15,16,17,18,19].map(h =>
+    `<option value="${h}">${String(h).padStart(2,'0')}:00</option>`
+  ).join('');
+
+  formDiv.innerHTML = `
+    <div style="font-size:12px;color:var(--ink3);margin-bottom:8px;">為 ${name} 更改時段</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <select id="rs-date-${bookingId}" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;background:var(--paper);font-family:inherit;">
+        ${dateOpts.join('')}
+      </select>
+      <select id="rs-time-${bookingId}" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;background:var(--paper);font-family:inherit;">
+        ${slotOpts}
+      </select>
+      <button onclick="submitReschedule('${bookingId}','${currentDateStr}')"
+        style="padding:7px 16px;background:#5b4fcf;color:#fff;border:none;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;">
+        確認更改
+      </button>
+      <button onclick="document.getElementById('reschedule-form-${bookingId}').style.display='none'"
+        style="padding:7px 12px;background:none;border:1px solid var(--border);border-radius:6px;font-size:13px;cursor:pointer;">
+        取消
+      </button>
+    </div>`;
+  formDiv.style.display = 'block';
+}
+
+async function submitReschedule(bookingId, oldDateStr) {
+  const newDate = document.getElementById('rs-date-' + bookingId).value;
+  const newTime = document.getElementById('rs-time-' + bookingId).value;
+  if (!confirm('確定將此預約改為 ' + newDate + ' ' + String(newTime).padStart(2,'0') + ':00？\n系統將自動更新 Calendar 並寄送通知信。')) return;
+
+  try {
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'updateDateTime', bookingId, newDate, newTime })
+    });
+    const d = await r.json();
+    if (d.success) {
+      // 更新本地資料
+      const b = bookings.find(x => x.bookingId === bookingId);
+      if (b) {
+        b.date = newDate;
+        b.time = String(newTime).padStart(2,'0') + ':00';
+      }
+      showToast(d.name + ' 時段已更改 → ' + newDate + ' ' + String(newTime).padStart(2,'0') + ':00', 'success');
+      await loadBookings();
+      closeModal();
+    } else {
+      showToast(d.error || '更改失敗', 'error');
+    }
+  } catch(e) { showToast('網路錯誤', 'error'); }
+}
+  if (!confirm('確定將此預約標記為「' + status + '」？')) return;
+  try {
+    const r = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'adminUpdateStatus', bookingId, status })
+    });
+    const d = await r.json();
+    if (d.success) {
+      // 更新本地資料
+      const b = bookings.find(x => x.bookingId === bookingId);
+      if (b) b.status = status;
+      showToast(d.name + ' → ' + status, 'success');
+      // 重繪列表和日曆
+      renderBookingsList();
+      renderCal();
+      // 重新渲染該日預約列表
+      const dayBookings = getBookingsForDate(dateStr, curLoc);
+      const container = document.getElementById('booking-list-' + dateStr);
+      if (container) container.innerHTML = dayBookings.map(b => buildBookingRow(b, dateStr)).join('');
+    } else {
+      showToast(d.error || '操作失敗', 'error');
+    }
+  } catch(e) { showToast('網路錯誤', 'error'); }
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
+// ── BOOKINGS LIST ────────────────────────────────────────
+function renderBookingsList(todayPrefix) {
+  const statusF = document.getElementById('filter-status').value;
+  const locF    = document.getElementById('filter-loc').value;
+  const nameF   = (document.getElementById('filter-name').value || '').trim();
+  let list = [...bookings];
+  if (todayPrefix)               list = list.filter(b => b.bookingId && b.bookingId.startsWith(todayPrefix));
+  else if (statusF === '__cancelled__') list = list.filter(b => b.status === '已取消' || b.status === '已釋放');
+  else if (statusF)              list = list.filter(b => b.status === statusF);
+  if (locF)  list = list.filter(b => b.location.includes(locF));
+  if (nameF) list = list.filter(b => b.name && b.name.includes(nameF));
+  list.sort((a,b) => normalizeDate(a.date).localeCompare(normalizeDate(b.date)) || (a.time||'').localeCompare(b.time||''));
+
+  const tbody = document.getElementById('bookings-tbody');
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:32px;">無符合條件的預約</td></tr>';
+    return;
+  }
+
+  const statusMap = {待確認:'pill-pending',已確認:'pill-confirmed',已回覆出席:'pill-replied',已回覆取消:'pill-replied-cancel',已取消:'pill-cancelled',已釋放:'pill-released'};
+  const locColor = { minsheng: 'var(--moss)', myzoo: 'var(--myzoo)' };
+
+  tbody.innerHTML = list.map(b => {
+    const pillCls = statusMap[b.status] || 'pill-pending';
+    const locShort = b.location.includes('民生') ? '民生' : 'MYZOO';
+    const locC = b.location.includes('民生') ? 'var(--moss)' : 'var(--myzoo)';
+    const dateNorm = normalizeDate(b.date);
+    const dateDisp = b.date;
+    const canConfirm = b.status === '待確認';
+    const canCancel  = b.status === '待確認' || b.status === '已確認';
+
+    return `<tr>
+      <td><div style="font-weight:500;color:var(--ink)">${dateDisp}</div><div style="color:var(--ink3)">${b.time || ''}</div></td>
+      <td class="table-name">${b.name}<br><span style="font-size:11px;color:var(--ink3);font-weight:400">${b.phone}</span></td>
+      <td><span style="color:${locC};font-weight:500">${locShort}</span></td>
+      <td>${b.pax} 人</td>
+      <td style="font-size:12px;color:var(--ink3)">${b.product}</td>
+      <td><span class="status-pill ${pillCls}">${b.status}</span></td>
+      <td>
+        <div class="table-actions">
+          ${canConfirm ? `<button class="action-btn confirm" onclick="adminAction('${b.bookingId}','已確認','${dateNorm}')">確認</button>` : ''}
+          ${canCancel  ? `<button class="action-btn cancel"  onclick="adminAction('${b.bookingId}','已取消','${dateNorm}')">取消</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSummaryCards() {
+  const total        = bookings.length;
+  const confirmed    = bookings.filter(b => b.status === '已確認').length;
+  const replied      = bookings.filter(b => b.status === '已回覆出席').length;
+  const repliedCancel= bookings.filter(b => b.status === '已回覆取消').length;
+  const pending      = bookings.filter(b => b.status === '待確認').length;
+  const cancelled    = bookings.filter(b => b.status === '已取消' || b.status === '已釋放').length;
+  const minsheng     = bookings.filter(b => b.location.includes('民生')).length;
+  const myzoo        = bookings.filter(b => b.location.includes('MYZOO')).length;
+
+  const now = new Date(); now.setHours(0,0,0,0);
+  const todayPrefix = 'RR-' + now.getFullYear() +
+    String(now.getMonth()+1).padStart(2,'0') +
+    String(now.getDate()).padStart(2,'0');
+  const todayNew = bookings.filter(b => b.bookingId && b.bookingId.startsWith(todayPrefix)).length;
+
+  const cards = [
+    { num: total,         label: '當月預約總數',  color: 'var(--ink)',            filter: '',              sub: '' },
+    { num: todayNew,      label: '今日新增預約',  color: '#5b4fcf',               filter: '__today__',     sub: '今天送出的預約' },
+    { num: confirmed,     label: '已確認',        color: 'var(--confirmed)',      filter: '已確認',        sub: '點擊篩選' },
+    { num: replied,       label: '已回覆出席',    color: 'var(--replied)',        filter: '已回覆出席',    sub: '客人確認出席' },
+    { num: repliedCancel, label: '已回覆取消',    color: 'var(--replied-cancel)', filter: '已回覆取消',    sub: '客人回覆取消' },
+    { num: pending,       label: '待確認',        color: 'var(--pending)',        filter: '待確認',        sub: '點擊篩選' },
+    { num: cancelled,     label: '已取消／釋放',  color: 'var(--cancelled)',      filter: '__cancelled__', sub: '點擊篩選' },
+    { num: minsheng,      label: '民生體驗點',    color: 'var(--moss)',           filter: '__minsheng__',  sub: '當月' },
+    { num: myzoo,         label: 'MYZOO',         color: 'var(--myzoo)',          filter: '__myzoo__',     sub: '當月' },
+  ];
+
+  document.getElementById('summary-cards').innerHTML = cards.map(c => `
+    <div class="summary-card" onclick="filterByStatus('${c.filter}')"
+      style="cursor:pointer;transition:all 0.15s;"
+      onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(0,0,0,0.12)'"
+      onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div class="summary-num" style="color:${c.color};font-size:26px;">${c.num}</div>
+      <div class="summary-label">${c.label}</div>
+      ${c.sub ? `<div style="font-size:10px;color:var(--ink3);margin-top:2px;">${c.sub}</div>` : ''}
+    </div>`).join('');
+}
+
+function filterByStatus(filter) {
+  switchTab('bookings');
+  const statusSel = document.getElementById('filter-status');
+  const locSel    = document.getElementById('filter-loc');
+  const nameInput = document.getElementById('filter-name');
+  if (nameInput) nameInput.value = '';
+
+  // 地點篩選
+  if (filter === '__minsheng__') {
+    if (statusSel) statusSel.value = '';
+    if (locSel) locSel.value = '民生';
+  } else if (filter === '__myzoo__') {
+    if (statusSel) statusSel.value = '';
+    if (locSel) locSel.value = 'MYZOO';
+  } else if (filter === '__today__') {
+    if (statusSel) statusSel.value = '';
+    if (locSel) locSel.value = '';
+    // 今日新增特殊篩選
+    const now = new Date(); now.setHours(0,0,0,0);
+    const todayPrefix = 'RR-' + now.getFullYear() +
+      String(now.getMonth()+1).padStart(2,'0') +
+      String(now.getDate()).padStart(2,'0');
+    renderBookingsList(todayPrefix);
+    return;
+  } else {
+    if (statusSel) statusSel.value = filter;
+    if (locSel) locSel.value = '';
+  }
+  renderBookingsList();
+}
+
+// ── TOAST ────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, type='') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast ' + type + ' show';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 2800);
+}
+
+// ── INIT ─────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initMonthFilter();
+  // Enter 登入
+  document.getElementById('pw-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+});
+</script>
+</body>
+</html>

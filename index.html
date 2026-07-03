@@ -390,8 +390,9 @@
       </div>
     </div>
 
-    <div style="text-align:center;padding:8px 0 4px;">
+    <div style="text-align:center;padding:8px 0 4px;display:flex;justify-content:center;gap:20px;">
       <button onclick="toggleLookup()" style="background:none;border:none;color:var(--ink3);font-size:13px;cursor:pointer;text-decoration:underline;">查詢已有的預約</button>
+      <button onclick="toggleWaitlist()" style="background:none;border:none;color:var(--warm);font-size:13px;cursor:pointer;text-decoration:underline;">登記候補時段</button>
     </div>
     <div id="lookup-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:8px;">
       <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:12px;">查詢預約</div>
@@ -402,6 +403,77 @@
       </div>
       <div id="lookup-result" style="margin-top:14px;"></div>
     </div>
+    <!-- 候補登記表單 -->
+    <div id="waitlist-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:8px;">
+      <div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px;">登記候補時段</div>
+      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px;line-height:1.6;">填寫候補資料後，有空缺時段我們會主動聯繫您</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">姓名 <span style="color:var(--warm);">*</span></label>
+          <input class="form-input" type="text" id="wl-name" placeholder="王小明">
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">電話 <span style="color:var(--warm);">*</span></label>
+          <input class="form-input" type="tel" id="wl-phone" placeholder="0912345678" maxlength="10">
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">體驗地點 <span style="color:var(--warm);">*</span></label>
+        <div style="display:flex;gap:10px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="wl-location" value="民生體驗點（台北）" style="accent-color:var(--moss);"> 民生體驗點（台北）
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="wl-location" value="MYZOO（台中）" style="accent-color:var(--moss);"> MYZOO（台中）
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="wl-location" value="兩個都可以" style="accent-color:var(--moss);"> 兩個都可以
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">希望日期 <span style="color:var(--warm);">*</span></label>
+        <input class="form-input" type="text" id="wl-dates" placeholder="例如：7/5、7/12 週末都可以、越快越好">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">希望時段</label>
+        <input class="form-input" type="text" id="wl-slots" placeholder="例如：下午 2點後、上午 10-11點都可以">
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">備註</label>
+        <textarea class="form-textarea" id="wl-note" placeholder="例如：已有 6/28 預約，但更希望 6/21；或臨時有事想改時段..." style="min-height:60px;"></textarea>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:8px;">有空缺時段，希望如何聯繫您？ <span style="color:var(--warm);">*</span></label>
+        <div style="display:flex;gap:16px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="wl-contact" value="電話" id="wl-contact-phone" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> 電話
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+            <input type="radio" name="wl-contact" value="LINE" id="wl-contact-line" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> LINE
+          </label>
+        </div>
+      </div>
+
+      <div id="wl-line-wrap" style="display:none;margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">LINE 顯示名稱 <span style="color:var(--warm);">*</span></label>
+        <input class="form-input" type="text" id="wl-line-name" placeholder="請填寫您的 LINE 顯示名稱">
+        <div style="font-size:11px;color:var(--warm);margin-top:5px;line-height:1.6;">
+          請先加入日日居官方 LINE：<strong>@781nevvb</strong>，我們才能透過 LINE 聯繫您
+        </div>
+        <a href="https://line.me/ti/p/@781nevvb" target="_blank" style="display:inline-block;margin-top:8px;background:#06C755;color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:500;">加入官方 LINE</a>
+      </div>
+
+      <div id="wl-result" style="margin-bottom:10px;"></div>
+      <button onclick="submitWaitlist()" style="width:100%;padding:13px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;">送出候補登記</button>
+    </div>
+
     <div class="sticky-bar"><div class="sticky-inner">
       <div class="sticky-summary" id="sum1">請選擇體驗地點</div>
       <button class="btn-primary" id="btn1" disabled onclick="goStep(2)">下一步：選擇日期</button>
@@ -1253,6 +1325,71 @@ async function lookupBooking() {
     result.innerHTML = html;
   } catch(e) {
     result.innerHTML = '<div style="color:var(--ink3);font-size:13px;text-align:center;padding:12px;">查詢失敗，請稍後再試</div>';
+  }
+}
+
+function toggleWaitlist() {
+  const panel = document.getElementById('waitlist-panel');
+  const lookupPanel = document.getElementById('lookup-panel');
+  if (panel.style.display === 'none') {
+    panel.style.display = '';
+    lookupPanel.style.display = 'none';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function toggleWlLineName() {
+  const isLine = document.getElementById('wl-contact-line').checked;
+  document.getElementById('wl-line-wrap').style.display = isLine ? '' : 'none';
+}
+
+async function submitWaitlist() {
+  const name  = document.getElementById('wl-name').value.trim();
+  const phone = document.getElementById('wl-phone').value.replace(/\D/g,'');
+  const loc   = document.querySelector('input[name="wl-location"]:checked');
+  const dates = document.getElementById('wl-dates').value.trim();
+  const contact = document.querySelector('input[name="wl-contact"]:checked');
+  const result = document.getElementById('wl-result');
+
+  if (!name || !phone || !loc || !dates || !contact) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請填寫所有必填欄位</div>';
+    return;
+  }
+  if (!/^09\d{8}$/.test(phone)) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請輸入正確的 10 碼手機號碼</div>';
+    return;
+  }
+  const isLine = contact.value === 'LINE';
+  const lineName = document.getElementById('wl-line-name').value.trim();
+  if (isLine && !lineName) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請填寫 LINE 顯示名稱</div>';
+    return;
+  }
+
+  result.innerHTML = '<div style="color:var(--ink3);font-size:13px;">送出中...</div>';
+
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: 'addWaitlist',
+        name, phone,
+        location:      loc.value,
+        dates,
+        slots:         document.getElementById('wl-slots').value.trim(),
+        note:          document.getElementById('wl-note').value.trim(),
+        contactMethod: contact.value,
+        lineName:      lineName,
+      })
+    });
+    result.innerHTML = '<div style="color:var(--moss);font-size:13px;font-weight:500;">✓ 候補登記成功！有空缺時段我們會主動聯繫您。</div>';
+    // 清空表單
+    ['wl-name','wl-dates','wl-slots','wl-note','wl-line-name'].forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('input[name="wl-location"], input[name="wl-contact"]').forEach(r => r.checked = false);
+    document.getElementById('wl-line-wrap').style.display = 'none';
+  } catch(e) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">送出失敗，請稍後再試</div>';
   }
 }
 

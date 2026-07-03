@@ -222,6 +222,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
   <div class="tabs">
     <div class="tab active" id="tab-cal" onclick="switchTab('cal')">日曆管理</div>
     <div class="tab" id="tab-list" onclick="switchTab('list')">預約列表</div>
+    <div class="tab" id="tab-waitlist" onclick="switchTab('waitlist')">候補名單</div>
   </div>
 
   <!-- CAL TAB -->
@@ -331,6 +332,29 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
   </div>
 </div>
 
+  <!-- WAITLIST TAB -->
+  <div class="main" id="page-waitlist" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div style="font-size:15px;font-weight:500;">候補名單</div>
+      <div style="display:flex;gap:8px;">
+        <select class="filter-select" id="wl-filter-status" onchange="renderWaitlist()">
+          <option value="">全部狀態</option>
+          <option value="等候中">等候中</option>
+          <option value="已聯繫">已聯繫</option>
+          <option value="已安排">已安排</option>
+          <option value="已取消">已取消</option>
+        </select>
+        <select class="filter-select" id="wl-filter-loc" onchange="renderWaitlist()">
+          <option value="">全部地點</option>
+          <option value="民生">民生體驗點</option>
+          <option value="MYZOO">MYZOO</option>
+        </select>
+        <button class="topbar-btn" style="background:var(--moss);color:#fff;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;border:none;cursor:pointer;" onclick="loadWaitlist()">⟳ 重新整理</button>
+      </div>
+    </div>
+    <div id="waitlist-container"></div>
+  </div>
+
 <!-- RESCHEDULE MODAL -->
 <div class="modal-overlay" id="rs-modal">
   <div class="modal">
@@ -424,11 +448,12 @@ document.addEventListener('keydown', e => { if (e.key==='Enter' && document.getE
 
 // ── TABS ─────────────────────────────────────────────────
 function switchTab(t) {
-  ['cal','list'].forEach(id => {
+  ['cal','list','waitlist'].forEach(id => {
     document.getElementById('page-'+id).style.display = t===id ? '' : 'none';
     document.getElementById('tab-'+id).className = 'tab'+(t===id?' active':'');
   });
   if (t==='list') renderList();
+  if (t==='waitlist') loadWaitlist();
 }
 
 // ── LOAD ─────────────────────────────────────────────────
@@ -937,6 +962,58 @@ async function saveSchedule() {
 }
 
 // ── TOAST ─────────────────────────────────────────────────
+// ── 候補名單 ─────────────────────────────────────────────
+let waitlistData = [];
+
+async function loadWaitlist() {
+  try {
+    const r = await fetch(API_URL + '?action=getWaitlist');
+    const d = await r.json();
+    if (d.success) { waitlistData = d.rows || []; renderWaitlist(); }
+  } catch(e) { showToast('候補名單載入失敗', 'error'); }
+}
+
+function renderWaitlist() {
+  const statusFilter = document.getElementById('wl-filter-status').value;
+  const locFilter    = document.getElementById('wl-filter-loc').value;
+  const filtered = waitlistData.filter(r => {
+    if (statusFilter && r.status !== statusFilter) return false;
+    if (locFilter && !r.location.includes(locFilter)) return false;
+    return true;
+  });
+
+  const container = document.getElementById('waitlist-container');
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state">目前沒有候補登記</div>';
+    return;
+  }
+
+  const statusColor = { '等候中':'var(--pending)', '已聯繫':'var(--replied)', '已安排':'var(--confirmed)', '已取消':'var(--cancelled)' };
+
+  container.innerHTML = `<table class="booking-table">
+    <thead><tr>
+      <th>登記時間</th><th>姓名</th><th>電話</th><th>地點</th>
+      <th>希望日期</th><th>希望時段</th><th>聯繫方式</th><th>備註</th><th>狀態</th>
+    </tr></thead>
+    <tbody>${filtered.map(r => `<tr>
+      <td style="font-size:12px;color:var(--ink3);">${r.time}</td>
+      <td style="font-weight:500;">${r.name}</td>
+      <td>${r.phone}</td>
+      <td>${r.location}</td>
+      <td>${r.dates}</td>
+      <td style="font-size:12px;">${r.slots||'-'}</td>
+      <td>
+        ${r.contactMethod === 'LINE'
+          ? `<span style="color:#06C755;font-weight:500;">LINE</span><br><span style="font-size:11px;color:var(--ink3);">${r.lineName||''}</span>`
+          : '<span style="color:var(--ink2);">電話</span>'}
+      </td>
+      <td style="font-size:12px;color:var(--ink3);max-width:150px;">${r.note||'-'}</td>
+      <td><span class="status-badge" style="background:${r.status==='等候中'?'#fff8e6':r.status==='已安排'?'var(--moss-light)':r.status==='已聯繫'?'#e8f0ff':'var(--danger-light)'};color:${statusColor[r.status]||'var(--ink3)'};">${r.status}</span></td>
+    </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
 let toastTimer;
 function showToast(msg,type='') {
   const el=document.getElementById('toast');

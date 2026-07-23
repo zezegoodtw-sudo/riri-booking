@@ -470,6 +470,12 @@
         <a href="https://line.me/ti/p/@781nevvb" target="_blank" style="display:inline-block;margin-top:8px;background:#06C755;color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:500;">加入官方 LINE</a>
       </div>
 
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱（選填）</label>
+        <input class="form-input" type="text" id="wl-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
+        <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+      </div>
+
       <div id="wl-result" style="margin-bottom:10px;"></div>
       <button onclick="submitWaitlist()" style="width:100%;padding:13px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;">送出候補登記</button>
     </div>
@@ -637,6 +643,12 @@
       <textarea class="form-textarea" id="f-note" placeholder="有任何特殊需求或想讓我們事先了解的事項，歡迎填寫"></textarea>
     </div>
 
+    <div class="form-group">
+      <label class="form-label">Facebook 顯示名稱（選填）</label>
+      <input class="form-input" type="text" id="f-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+    </div>
+
     <div class="sticky-bar"><div class="sticky-inner">
       <div class="sticky-summary" id="sum4">請填寫必填資料</div>
       <button class="btn-primary" id="btn4" disabled onclick="goStep(5)">下一步：確認預約內容</button>
@@ -664,6 +676,7 @@
       <div class="confirm-row" id="c-podcaster-row" style="display:none"><div class="confirm-key">Podcaster</div><div class="confirm-val" id="c-podcaster"></div></div>
       <div class="confirm-row" id="c-social-row" style="display:none"><div class="confirm-key">社群帳號</div><div class="confirm-val" id="c-social"></div></div>
       <div class="confirm-row" id="c-note-row"><div class="confirm-key">備註</div><div class="confirm-val" id="c-note"></div></div>
+      <div class="confirm-row" id="c-facebook-row" style="display:none"><div class="confirm-key">FB 名稱</div><div class="confirm-val" id="c-facebook"></div></div>
     </div>
 
     <div class="notice">
@@ -1221,8 +1234,13 @@ function renderConfirm() {
   } else {
     socialRow.style.display = 'none';
   }
-  const note = document.getElementById('f-note').value.trim();
+  const note     = document.getElementById('f-note').value.trim();
+  const facebook = document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '';
   document.getElementById('c-note').textContent = note || '（無）';
+  if (facebook) {
+    document.getElementById('c-facebook-row').style.display = '';
+    document.getElementById('c-facebook').textContent = facebook;
+  }
   document.getElementById('c-note-row').style.display = '';
 }
 
@@ -1389,6 +1407,7 @@ async function submitWaitlist() {
         note:          document.getElementById('wl-note').value.trim(),
         contactMethod: contact.value,
         lineName:      lineName,
+        facebook:      document.getElementById('wl-facebook') ? document.getElementById('wl-facebook').value.trim() : '',
       })
     });
     result.innerHTML = '<div style="color:var(--moss);font-size:13px;font-weight:500;">✓ 候補登記成功！有空缺時段我們會主動聯繫您。</div>';
@@ -1445,6 +1464,7 @@ async function submitBooking() {
     source:   document.getElementById('f-source').value,
     leader:   document.getElementById('f-leader').value.trim(),
     note:     document.getElementById('f-note').value.trim(),
+    facebook: document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '',
     social:   document.getElementById('f-social').value.trim(),
     youtuber: document.getElementById('f-youtuber') ? document.getElementById('f-youtuber').value.trim() : '',
     podcaster: document.getElementById('f-podcaster') ? document.getElementById('f-podcaster').value.trim() : '',

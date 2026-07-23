@@ -526,8 +526,15 @@ async function loadOpenMonth() {
 
 function renderOpenMonthBar() {
   const el = document.getElementById('open-month-display');
-  if (!el || !currentOpenMonth) return;
-  const parts = currentOpenMonth.split('/');
+  if (!el) return;
+  if (!currentOpenMonth) {
+    el.textContent = '（未設定，僅當月）';
+    el.style.color = 'var(--pending)';
+    return;
+  }
+  // 移除可能的單引號前綴
+  const clean = currentOpenMonth.replace(/^'+/, '').trim();
+  const parts = clean.split('/');
   const y = parseInt(parts[0]);
   const m = parseInt(parts[1]);
   const now = new Date();
@@ -540,7 +547,8 @@ function renderOpenMonthBar() {
 
 async function changeOpenMonth(dir) {
   if (!currentOpenMonth) return;
-  const parts = currentOpenMonth.split('/');
+  const clean = (currentOpenMonth || '').replace(/^'+/, '').trim();
+  const parts = clean.split('/');
   let y = parseInt(parts[0]);
   let m = parseInt(parts[1]) + dir;
   if (m > 12) { m = 1; y++; }

@@ -796,7 +796,8 @@ async function loadOpenMonth() {
     const r = await fetch(API_URL + '?action=getOpenMonth');
     const d = await r.json();
     if (d.success && d.openMonth) {
-      openMonthSetting = d.openMonth; // e.g. '2026/08'
+      // 移除可能的單引號前綴
+      openMonthSetting = d.openMonth.toString().replace(/^'+/, '').trim();
     }
   } catch(e) { console.warn('開放月份載入失敗', e); }
 }

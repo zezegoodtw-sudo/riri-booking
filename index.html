@@ -942,7 +942,11 @@ function goStep(n) {
   }
   updateStepBar(n);
   if (n === 2) {
-    Promise.all([loadSchedule(), loadOpenMonth()]).finally(() => {
+    // 確保 openMonth 和 schedule 都載入完才渲染日曆
+    Promise.all([
+      loadSchedule().catch(() => {}),
+      loadOpenMonth().catch(() => {})
+    ]).then(() => {
       autoAdvanceMonth();
       renderCal();
     });

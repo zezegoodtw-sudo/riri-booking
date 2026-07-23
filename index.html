@@ -788,15 +788,31 @@ function autoAdvanceMonth() {
   }
 }
 
+// 後台設定的開放最大月份
+let openMonthSetting = null; // 'yyyy/MM' 或 null（null 則用當月）
+
+async function loadOpenMonth() {
+  try {
+    const r = await fetch(API_URL + '?action=getOpenMonth');
+    const d = await r.json();
+    if (d.success && d.openMonth) {
+      openMonthSetting = d.openMonth; // e.g. '2026/08'
+    }
+  } catch(e) { console.warn('開放月份載入失敗', e); }
+}
+
 function getBookableRange() {
   const now = new Date(); now.setHours(0,0,0,0);
   const thisY = now.getFullYear();
   const thisM = now.getMonth();
   let maxY = thisY, maxM = thisM;
-  if (now.getDate() >= 26) {
-    maxM++;
-    if (maxM > 11) { maxM = 0; maxY++; }
+
+  if (openMonthSetting) {
+    const parts = openMonthSetting.split('/');
+    maxY = parseInt(parts[0]);
+    maxM = parseInt(parts[1]) - 1; // 0-indexed
   }
+
   return { minY: thisY, minM: thisM, maxY, maxM };
 }
 
@@ -926,7 +942,7 @@ function goStep(n) {
   }
   updateStepBar(n);
   if (n === 2) {
-    loadSchedule().finally(() => {
+    Promise.all([loadSchedule(), loadOpenMonth()]).finally(() => {
       autoAdvanceMonth();
       renderCal();
     });
@@ -1446,7 +1462,7 @@ function showLookupCopyToast() {
 const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
 
 // 頁面載入後背景預載時段設定
-window.addEventListener('load', () => { Promise.all([loadSchedule(), preloadBookings()]).catch(() => {}); });
+window.addEventListener('load', () => { Promise.all([loadSchedule(), preloadBookings(), loadOpenMonth()]).catch(() => {}); });
 
 async function submitBooking() {
   const btn = document.querySelector('#step5 .btn-primary');

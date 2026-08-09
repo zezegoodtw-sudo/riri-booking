@@ -94,7 +94,7 @@
   }
 
   /* ── MAIN ── */
-  .main { max-width: 480px; margin: 0 auto; padding: 0 20px 140px; }
+  .main { max-width: 480px; margin: 0 auto; padding: 0 20px calc(180px + env(safe-area-inset-bottom)); }
 
   /* ── SECTION TITLE ── */
   .section-title {
@@ -148,7 +148,7 @@
     margin-bottom: 14px;
   }
   .cal-nav-btn {
-    width: 36px; height: 36px; border-radius: 50%;
+    width: 40px; height: 40px; border-radius: 50%;
     border: 1px solid var(--border); background: none;
     cursor: pointer; font-size: 16px; color: var(--ink2);
     display: flex; align-items: center; justify-content: center;
@@ -220,7 +220,7 @@
     width: 100%; padding: 12px 14px;
     border: 1.5px solid var(--border); border-radius: var(--radius-sm);
     background: var(--paper); color: var(--ink);
-    font-family: 'Noto Sans TC', sans-serif; font-size: 14px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 16px;
     transition: border-color 0.2s; outline: none;
     appearance: none; -webkit-appearance: none;
   }
@@ -309,11 +309,15 @@
 
   /* ── STICKY FOOTER ── */
   .sticky-bar {
-    position: static;
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
     background: var(--paper);
-    padding: 16px 0 0;
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 16px rgba(26,23,20,0.06);
+    z-index: 10;
   }
-  .sticky-inner { max-width: 480px; margin: 0 auto; }
+  .sticky-inner { max-width: 440px; margin: 0 auto; }
   .sticky-summary {
     font-size: 12px; color: var(--ink3); margin-bottom: 8px;
     text-align: center; letter-spacing: 0.03em;
@@ -1469,6 +1473,8 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqd
 // 頁面載入後背景預載時段設定
 window.addEventListener('load', () => { Promise.all([loadSchedule(), preloadBookings(), loadOpenMonth()]).catch(() => {}); });
 
+let pendingSubmission = null;
+
 async function submitBooking() {
   const btn = document.querySelector('#step5 .btn-primary');
   btn.disabled = true;
@@ -1492,15 +1498,25 @@ async function submitBooking() {
     email:    document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : ''
   };
 
+  pendingSubmission = { payload: payload, resolving: false };
+
+  // 逾時保護：避免 fetch 因後端偏慢、302 重導向或手機背景凍結而永遠不 settle，
+  // 卡在「送出中…」畫面。逾時或連線異常時改用 lookup 主動查詢確認是否已送出成功。
+  const controller = new AbortController();
+  const timeoutId = setTimeout(function(){ controller.abort(); }, 12000);
+
   try {
     if (API_URL !== 'YOUR_APPS_SCRIPT_URL') {
       const res = await fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       const result = await res.json();
       if (!result.success) {
         // API 回傳失敗
+        pendingSubmission = null;
         btn.disabled = false;
         btn.textContent = '送出預約申請';
         alert('預約送出失敗，請稍後再試或聯繫我們。\n錯誤：' + (result.error || '未知錯誤'));
@@ -1509,15 +1525,84 @@ async function submitBooking() {
       // 把 bookingId 存到 payload
       payload.bookingId = result.bookingId;
     }
+    pendingSubmission = null;
+    showSuccess(payload);
   } catch(e) {
-    console.warn('API 連線失敗', e);
+    clearTimeout(timeoutId);
+    console.warn('送出逾時或連線異常，改用查詢確認', e);
+    resolvePendingSubmission();
+  }
+}
+
+// 送出逾時／手機背景凍結後的保險機制：主動查詢剛剛的手機號碼，
+// 確認預約實際上有沒有寫入成功，而不是單純假設成功或讓畫面卡住。
+async function resolvePendingSubmission() {
+  if (!pendingSubmission || pendingSubmission.resolving) return;
+  pendingSubmission.resolving = true;
+  const payload = pendingSubmission.payload;
+  const btn = document.querySelector('#step5 .btn-primary');
+  if (btn) btn.textContent = '確認送出結果中…';
+
+  const found = await checkBookingSubmitted(payload);
+  pendingSubmission = null;
+
+  if (found) {
+    showSuccess(payload);
+  } else if (btn) {
     btn.disabled = false;
     btn.textContent = '送出預約申請';
-    alert('網路連線問題，請稍後再試。');
-    return;
+    alert('網路連線較慢，暫時無法確認預約是否送出成功。\n請確認網路連線後再試一次；若不確定是否重複送出，可用下方「查詢我的預約」確認，或聯繫 LINE 客服 @781nevvb。');
   }
+}
 
-  showSuccess(payload);
+// 手機鎖螢幕／切分頁時，計時器與 fetch 可能被瀏覽器凍結；
+// 重新回到分頁時立刻主動查詢一次，不用乾等逾時計時器。
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') resolvePendingSubmission();
+});
+
+async function checkBookingSubmitted(payload) {
+  try {
+    const resp = await fetch(API_URL + '?action=lookup&phone=' + payload.phone);
+    const data = await resp.json();
+    if (!data.success || !data.bookings) return false;
+    const targetDateKey = normalizeLookupDateKey(payload.date);
+    const targetHour = normalizeLookupHour(payload.time);
+    return data.bookings.some(function(b) {
+      return b.status !== '已取消'
+        && normalizeLookupDateKey(b.date) === targetDateKey
+        && normalizeLookupHour(b.time) === targetHour;
+    });
+  } catch(e) {
+    return false;
+  }
+}
+
+function normalizeLookupDateKey(v) {
+  if (!v) return '';
+  var s = v.toString();
+  var d;
+  if (s.includes('GMT') || s.includes('Standard')) {
+    d = new Date(s);
+  } else {
+    var parts = s.split('/');
+    d = parts.length === 3 ? new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])) : new Date(s);
+  }
+  if (isNaN(d.getTime())) return s;
+  return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate();
+}
+
+function normalizeLookupHour(v) {
+  if (!v) return null;
+  var s = v.toString();
+  var h;
+  if (s.includes('GMT') || s.includes('Standard')) {
+    var d = new Date(s);
+    h = isNaN(d.getTime()) ? NaN : d.getHours();
+  } else {
+    h = parseInt(s.includes(':') ? s.split(':')[0] : s);
+  }
+  return isNaN(h) ? null : h;
 }
 
 function showSuccess(payload) {

@@ -374,7 +374,7 @@ hr.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
       <div class="reschedule-row">
         <div>
           <div class="rs-label">新日期</div>
-          <input class="rs-input" type="date" id="rs-date">
+          <input class="rs-input" type="date" id="rs-date" onchange="updateRsTimeOptions()">
         </div>
         <div>
           <div class="rs-label">新時間</div>
@@ -468,13 +468,12 @@ function switchTab(t) {
 
 // ── LOAD ─────────────────────────────────────────────────
 async function loadAll() {
-  const now = new Date();
-  const ym  = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
-  loadOpenMonth();
   try {
-    const r = await fetch(API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym));
+    const r = await fetch(API_URL + '?action=getInit');
     const d = await r.json();
     if (d.success) {
+      applyOpenMonth(d.openMonth);
+      if (d.schedule) { scheduleRows = d.schedule; renderScheduleTable(); }
       bookings = (d.bookings||[]).map(b => ({
         ...b,
         time: parseTimeStr(b.time)
@@ -484,7 +483,10 @@ async function loadAll() {
       renderCal();
       initMonthFilter();
     }
-  } catch(e) { showToast('載入失敗','error'); }
+  } catch(e) {
+    showToast('載入失敗','error');
+    loadOpenMonth();
+  }
 }
 
 function parseTimeStr(t) {
@@ -510,14 +512,17 @@ async function loadOpenMonth() {
   try {
     const r = await fetch(API_URL + '?action=getOpenMonth');
     const d = await r.json();
-    if (d.success && d.openMonth) {
-      currentOpenMonth = d.openMonth;
-    } else {
-      // 預設為當月
-      const now = new Date();
-      currentOpenMonth = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
-    }
+    applyOpenMonth(d.success ? d.openMonth : null);
   } catch(e) {
+    applyOpenMonth(null);
+  }
+}
+
+function applyOpenMonth(val) {
+  if (val) {
+    currentOpenMonth = val;
+  } else {
+    // 預設為當月
     const now = new Date();
     currentOpenMonth = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
   }
@@ -906,14 +911,42 @@ function setAllSlots(open) {
 function closeModal() { document.getElementById('day-modal').className='modal-overlay'; }
 
 // ── RESCHEDULE MODAL ─────────────────────────────────────
+const RS_HOURS = [10,11,12,13,14,15,16,17];
+let rsLocName = '';
+
 function openRsModal(bookingId, name, date, time) {
   rsBookingId = bookingId;
+  const b = bookings.find(x => x.bookingId === bookingId);
+  rsLocName = b ? b.location : '';
   document.getElementById('rs-modal-subtitle').textContent = name + '・' + date + ' ' + time;
   const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
   document.getElementById('rs-date').value = tomorrow.toISOString().split('T')[0];
-  document.getElementById('rs-time').value = '13';
   closeModal();
   document.getElementById('rs-modal').className='modal-overlay show';
+  updateRsTimeOptions();
+}
+
+function updateRsTimeOptions() {
+  const rawDate = document.getElementById('rs-date').value;
+  if (!rawDate || !rsLocName) return;
+  const dateStr = rawDate.replace(/-/g,'/');
+  const bookedHours = new Set(
+    bookings
+      .filter(b => b.bookingId !== rsBookingId && b.location === rsLocName && b.date === dateStr && ['待確認','已確認'].includes(b.status))
+      .map(b => parseInt(parseTimeHour(b.time)))
+  );
+  const sel = document.getElementById('rs-time');
+  const prevValue = sel.value;
+  sel.innerHTML = RS_HOURS.map(h => {
+    const taken = bookedHours.has(h);
+    return `<option value="${h}"${taken?' disabled':''}>${String(h).padStart(2,'0')}:00${taken?'（已被預約）':''}</option>`;
+  }).join('');
+  if (prevValue && !bookedHours.has(parseInt(prevValue))) {
+    sel.value = prevValue;
+  } else {
+    const firstOpen = RS_HOURS.find(h => !bookedHours.has(h));
+    if (firstOpen !== undefined) sel.value = firstOpen;
+  }
 }
 
 function closeRsModal() { document.getElementById('rs-modal').className='modal-overlay'; rsBookingId=null; }

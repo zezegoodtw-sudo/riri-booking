@@ -799,11 +799,15 @@ async function loadOpenMonth() {
   try {
     const r = await fetch(API_URL + '?action=getOpenMonth');
     const d = await r.json();
-    if (d.success && d.openMonth) {
-      // 移除可能的單引號前綴
-      openMonthSetting = d.openMonth.toString().replace(/^'+/, '').trim();
-    }
+    applyOpenMonth(d.success ? d.openMonth : null);
   } catch(e) { console.warn('開放月份載入失敗', e); }
+}
+
+function applyOpenMonth(val) {
+  if (val) {
+    // 移除可能的單引號前綴
+    openMonthSetting = val.toString().replace(/^'+/, '').trim();
+  }
 }
 
 function getBookableRange() {
@@ -840,18 +844,21 @@ async function loadSchedule() {
   try {
     const r = await fetch(API_URL + '?action=getSchedule');
     const d = await r.json();
-    if (d.success && d.rows) {
-      sheetOverrides = {};
-      d.rows.forEach(row => {
-        const key = row.date + '|' + row.location;
-        sheetOverrides[key] = row;
-      });
-    }
+    applyScheduleRows(d.success ? d.rows : null);
   } catch(e) {
     console.warn('時段設定載入失敗，使用預設規則', e);
   } finally {
     scheduleLoaded = true;
   }
+}
+
+function applyScheduleRows(rows) {
+  if (!rows) return;
+  sheetOverrides = {};
+  rows.forEach(row => {
+    const key = row.date + '|' + row.location;
+    sheetOverrides[key] = row;
+  });
 }
 
 async function preloadBookings() {
@@ -860,19 +867,40 @@ async function preloadBookings() {
     const ym  = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
     const r   = await fetch(API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym));
     const d   = await r.json();
-    if (d.success && d.bookings) {
-      preloadedBookings = {};
-      d.bookings.forEach(b => {
-        if (!['待確認','已確認'].includes(b.status)) return;
-        const dateNorm = b.date ? b.date.replace(/\./g,'/').split(' ')[0].split('/').map((v,i)=>i===0?v:v.padStart(2,'0')).join('/') : '';
-        const locName  = b.location || '';
-        const key = dateNorm + '|' + locName;
-        if (!preloadedBookings[key]) preloadedBookings[key] = new Set();
-        const h = parseInt(String(b.time).split(':')[0]);
-        if (!isNaN(h)) preloadedBookings[key].add(h);
-      });
-    }
+    applyBookings(d.success ? d.bookings : null);
   } catch(e) { console.warn('預約資料預載失敗', e); }
+}
+
+function applyBookings(bookings) {
+  if (!bookings) return;
+  preloadedBookings = {};
+  bookings.forEach(b => {
+    if (!['待確認','已確認'].includes(b.status)) return;
+    const dateNorm = b.date ? b.date.replace(/\./g,'/').split(' ')[0].split('/').map((v,i)=>i===0?v:v.padStart(2,'0')).join('/') : '';
+    const locName  = b.location || '';
+    const key = dateNorm + '|' + locName;
+    if (!preloadedBookings[key]) preloadedBookings[key] = new Set();
+    const h = parseInt(String(b.time).split(':')[0]);
+    if (!isNaN(h)) preloadedBookings[key].add(h);
+  });
+}
+
+async function loadInitData() {
+  try {
+    // getInit 固定回傳當月資料（與 getOpenMonth/getBookings 預設行為一致）
+    const r = await fetch(API_URL + '?action=getInit');
+    const d = await r.json();
+    if (d.success) {
+      applyScheduleRows(d.schedule);
+      applyOpenMonth(d.openMonth);
+      applyBookings(d.bookings);
+    }
+  } catch(e) {
+    console.warn('初始資料載入失敗，改用個別 API', e);
+    await Promise.all([loadSchedule(), preloadBookings(), loadOpenMonth()]);
+  } finally {
+    scheduleLoaded = true;
+  }
 }
 
 function getBookedHours(loc, y, m, d) {
@@ -1471,7 +1499,7 @@ function showLookupCopyToast() {
 const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
 
 // 頁面載入後背景預載時段設定
-window.addEventListener('load', () => { Promise.all([loadSchedule(), preloadBookings(), loadOpenMonth()]).catch(() => {}); });
+window.addEventListener('load', () => { loadInitData().catch(() => {}); });
 
 let pendingSubmission = null;
 

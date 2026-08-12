@@ -960,7 +960,13 @@ async function confirmReschedule() {
   try {
     const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'updateBookingDateTime', bookingId:rsBookingId, newDate, newTime }) });
     const d = await r.json();
-    if (d.success) { showToast('時間已更改，通知信已寄出','success'); closeRsModal(); await loadAll(); }
+    if (d.success) {
+      showToast('時間已更改，通知信已寄出','success');
+      const b = bookings.find(x => x.bookingId === rsBookingId);
+      if (b) { b.date = newDate; b.time = String(newTime).padStart(2,'0') + ':00'; }
+      closeRsModal();
+      refreshLocalBookingsView();
+    }
     else showToast(d.error||'更改失敗','error');
   } catch(e) { showToast('網路錯誤','error'); }
 }
@@ -968,11 +974,24 @@ async function confirmReschedule() {
 // ── QUICK ACTION ─────────────────────────────────────────
 async function quickAction(bookingId, status) {
   try {
-    await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'adminUpdateStatus', bookingId, status }) });
+    const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'adminUpdateStatus', bookingId, status }) });
+    const d = await r.json();
+    if (d.success === false) { showToast(d.error||'操作失敗','error'); return; }
     showToast(status==='已確認'?'已確認！確認信將自動寄出':'已取消','success');
+    const b = bookings.find(x => x.bookingId === bookingId);
+    if (b) b.status = status;
     closeModal();
-    await loadAll();
+    refreshLocalBookingsView();
   } catch(e) { showToast('操作失敗','error'); }
+}
+
+// 用目前已在記憶體裡的 bookings 直接重繪畫面，避免每次操作都重新打 API 拉全部資料
+function refreshLocalBookingsView() {
+  renderSummary();
+  renderTodayBar();
+  renderCal();
+  initMonthFilter();
+  if (document.getElementById('page-list').style.display !== 'none') renderList();
 }
 
 // ── LIST ─────────────────────────────────────────────────

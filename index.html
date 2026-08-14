@@ -1528,10 +1528,11 @@ async function submitBooking() {
 
   pendingSubmission = { payload: payload, resolving: false };
 
-  // 逾時保護：避免 fetch 因後端偏慢、302 重導向或手機背景凍結而永遠不 settle，
-  // 卡在「送出中…」畫面。逾時或連線異常時改用 lookup 主動查詢確認是否已送出成功。
+  // 逾時保護：Apps Script 冷啟動實測可能要 10~40 秒才回應，
+  // 逾時秒數要夠寬，避免伺服器其實還在正常處理就被前端提早判定失敗。
+  // 中止 fetch 不會中止後端已經在執行的 createBooking，所以逾時後改用 lookup 主動查詢確認結果。
   const controller = new AbortController();
-  const timeoutId = setTimeout(function(){ controller.abort(); }, 12000);
+  const timeoutId = setTimeout(function(){ controller.abort(); }, 45000);
 
   try {
     if (API_URL !== 'YOUR_APPS_SCRIPT_URL') {
@@ -1571,7 +1572,13 @@ async function resolvePendingSubmission() {
   const btn = document.querySelector('#step5 .btn-primary');
   if (btn) btn.textContent = '確認送出結果中…';
 
-  const found = await checkBookingSubmitted(payload);
+  // 中止的 POST 可能其實還在後端執行中（只是前端不再等它），
+  // 查一次沒找到不代表真的失敗，隔幾秒再查一次確保後端有機會寫完。
+  let found = await checkBookingSubmitted(payload);
+  if (!found) {
+    await new Promise(function(r){ setTimeout(r, 4000); });
+    found = await checkBookingSubmitted(payload);
+  }
   pendingSubmission = null;
 
   if (found) {
@@ -1591,7 +1598,10 @@ document.addEventListener('visibilitychange', function() {
 
 async function checkBookingSubmitted(payload) {
   try {
-    const resp = await fetch(API_URL + '?action=lookup&phone=' + payload.phone);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(function(){ controller.abort(); }, 20000);
+    const resp = await fetch(API_URL + '?action=lookup&phone=' + payload.phone, { signal: controller.signal });
+    clearTimeout(timeoutId);
     const data = await resp.json();
     if (!data.success || !data.bookings) return false;
     const targetDateKey = normalizeLookupDateKey(payload.date);

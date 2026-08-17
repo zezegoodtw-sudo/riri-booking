@@ -684,7 +684,7 @@ function renderCal() {
     const dayBookings = bookings.filter(b => {
       const bd = b.date ? b.date.replace(/\./g,'/') : '';
       return bd === dateStr && b.location.includes(locName.includes('民生')?'民生':'MYZOO');
-    });
+    }).sort((a, b) => parseTimeHour(a.time).localeCompare(parseTimeHour(b.time)));
 
     // 時段狀態
     const override = scheduleRows.find(r => {

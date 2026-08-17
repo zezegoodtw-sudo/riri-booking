@@ -297,6 +297,10 @@
   }
   .btn-primary:hover { background: #2e4530; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* 送出中的查詢入口：純 CSS 跟著按鈕的 disabled 狀態顯示，不依賴 JS 額外執行一行程式碼去切換，
+     避免任何時序問題或外部因素干擾 JS 執行，導致這個防呆連結沒有跟著顯示出來 */
+  #stuck-help { display: none; }
+  #step5 .btn-primary:disabled ~ #stuck-help { display: block !important; }
   .btn-secondary {
     width: 100%; padding: 13px;
     background: none; color: var(--ink2);
@@ -687,7 +691,7 @@
     <div class="sticky-bar"><div class="sticky-inner">
       <button class="btn-primary" onclick="submitBooking()">送出預約申請</button>
       <button class="btn-secondary" onclick="goStep(4)">← 修改資料</button>
-      <div id="stuck-help" style="display:none;text-align:center;font-size:12px;color:var(--ink3);margin-top:8px;">
+      <div id="stuck-help" style="text-align:center;font-size:12px;color:var(--ink3);margin-top:8px;">
         送出中如果畫面沒有反應，<a href="javascript:void(0)" onclick="manualCheckSubmission()" style="color:var(--moss);text-decoration:underline;">點此查詢送出結果</a>
       </div>
     </div></div>
@@ -1502,13 +1506,9 @@ async function submitBooking() {
   };
 
   pendingSubmission = { payload: payload, resolving: false };
-
-  // 手機或瀏覽器分頁切到背景時，setTimeout／fetch 可能被整個凍結或大幅延遲，
-  // 導致原本設計的自動逾時機制也跟著卡住不會觸發。與其用計時器延遲顯示
-  // （計時器本身就可能被凍結，等於防呆機制失靈），直接從一開始就顯示手動查詢入口，
-  // 確保使用者一定能主動觸發，不會被卡在一個永遠不會恢復的畫面。
-  const stuckHelp = document.getElementById('stuck-help');
-  if (stuckHelp) stuckHelp.style.display = '';
+  // 「查詢送出結果」連結的顯示／隱藏完全交給 CSS 跟著按鈕的 disabled 狀態走
+  // （#step5 .btn-primary:disabled ~ #stuck-help），不靠這裡另外執行一行 JS 去切換，
+  // 避免任何時序問題導致這個防呆連結沒有跟著一起顯示出來。
 
   // 逾時保護：Apps Script 冷啟動實測可能要 10~40 秒才回應，
   // 逾時秒數要夠寬，避免伺服器其實還在正常處理就被前端提早判定失敗。
@@ -1530,7 +1530,6 @@ async function submitBooking() {
         pendingSubmission = null;
         btn.disabled = false;
         btn.textContent = '送出預約申請';
-        if (stuckHelp) stuckHelp.style.display = 'none';
         alert('預約送出失敗，請稍後再試或聯繫我們。\n錯誤：' + (result.error || '未知錯誤'));
         return;
       }
@@ -1538,7 +1537,6 @@ async function submitBooking() {
       payload.bookingId = result.bookingId;
     }
     pendingSubmission = null;
-    if (stuckHelp) stuckHelp.style.display = 'none';
     showSuccess(payload);
   } catch(e) {
     clearTimeout(timeoutId);
@@ -1570,8 +1568,6 @@ async function resolvePendingSubmission() {
     found = await checkBookingSubmitted(payload);
   }
   pendingSubmission = null;
-  const stuckHelp = document.getElementById('stuck-help');
-  if (stuckHelp) stuckHelp.style.display = 'none';
 
   if (found) {
     showSuccess(payload);

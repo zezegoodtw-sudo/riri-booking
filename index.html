@@ -687,6 +687,9 @@
     <div class="sticky-bar"><div class="sticky-inner">
       <button class="btn-primary" onclick="submitBooking()">送出預約申請</button>
       <button class="btn-secondary" onclick="goStep(4)">← 修改資料</button>
+      <div id="stuck-help" style="display:none;text-align:center;font-size:12px;color:var(--ink3);margin-top:8px;">
+        畫面卡住了嗎？<a href="javascript:void(0)" onclick="manualCheckSubmission()" style="color:var(--moss);text-decoration:underline;">點此查詢送出結果</a>
+      </div>
     </div></div>
   </div>
 
@@ -1500,6 +1503,12 @@ async function submitBooking() {
 
   pendingSubmission = { payload: payload, resolving: false };
 
+  // 手機切到背景或鎖螢幕時，setTimeout／fetch 可能被瀏覽器整個凍結，
+  // 導致自動逾時機制也一起卡住。8 秒後主動顯示手動查詢入口，
+  // 讓使用者不用乾等一個永遠不會自己恢復的畫面。
+  const stuckHelp = document.getElementById('stuck-help');
+  const stuckTimer = setTimeout(function(){ if (stuckHelp) stuckHelp.style.display = ''; }, 8000);
+
   // 逾時保護：Apps Script 冷啟動實測可能要 10~40 秒才回應，
   // 逾時秒數要夠寬，避免伺服器其實還在正常處理就被前端提早判定失敗。
   // 中止 fetch 不會中止後端已經在執行的 createBooking，所以逾時後改用 lookup 主動查詢確認結果。
@@ -1514,12 +1523,14 @@ async function submitBooking() {
         signal: controller.signal
       });
       clearTimeout(timeoutId);
+      clearTimeout(stuckTimer);
       const result = await res.json();
       if (!result.success) {
         // API 回傳失敗
         pendingSubmission = null;
         btn.disabled = false;
         btn.textContent = '送出預約申請';
+        if (stuckHelp) stuckHelp.style.display = 'none';
         alert('預約送出失敗，請稍後再試或聯繫我們。\n錯誤：' + (result.error || '未知錯誤'));
         return;
       }
@@ -1527,12 +1538,19 @@ async function submitBooking() {
       payload.bookingId = result.bookingId;
     }
     pendingSubmission = null;
+    if (stuckHelp) stuckHelp.style.display = 'none';
     showSuccess(payload);
   } catch(e) {
     clearTimeout(timeoutId);
     console.warn('送出逾時或連線異常，改用查詢確認', e);
     resolvePendingSubmission();
   }
+}
+
+// 卡住畫面上的手動查詢入口，讓使用者可以主動觸發一次結果確認，
+// 不用依賴可能被瀏覽器凍結、不會自動醒來的計時器
+function manualCheckSubmission() {
+  resolvePendingSubmission();
 }
 
 // 送出逾時／手機背景凍結後的保險機制：主動查詢剛剛的手機號碼，
@@ -1552,6 +1570,8 @@ async function resolvePendingSubmission() {
     found = await checkBookingSubmitted(payload);
   }
   pendingSubmission = null;
+  const stuckHelp = document.getElementById('stuck-help');
+  if (stuckHelp) stuckHelp.style.display = 'none';
 
   if (found) {
     showSuccess(payload);

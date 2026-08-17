@@ -175,13 +175,13 @@
   .cal-day.full { color: var(--ink3); }
   .cal-day.full::after {
     content: ''; position: absolute; bottom: 3px;
-    width: 4.4px; height: 4.4px; border-radius: 50%;
+    width: 4.8px; height: 4.8px; border-radius: 50%;
     background: var(--danger);
   }
   .cal-day.avail { cursor: pointer; }
   .cal-day.avail::after {
     content: ''; position: absolute; bottom: 3px;
-    width: 4.4px; height: 4.4px; border-radius: 50%;
+    width: 4.8px; height: 4.8px; border-radius: 50%;
     background: var(--moss);
   }
   .cal-day.avail:hover { background: var(--moss-light); color: var(--moss); }
@@ -971,7 +971,7 @@ function selectLocation(loc) {
   const dmRow = document.getElementById('p-double-mattress-row');
   const dmBox = document.getElementById('p-double-mattress');
   if (dmRow && dmBox) {
-    dmRow.style.display = loc === 'myzoo' ? 'none' : '';
+    dmRow.style.display = loc === 'myzoo' ? 'none' : 'flex';
     if (loc === 'myzoo' && dmBox.checked) { dmBox.checked = false; productChanged(); }
   }
 }

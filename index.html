@@ -637,8 +637,8 @@
     </div>
 
     <div class="form-group" id="social-account-row" style="display:none">
-      <label class="form-label" id="social-account-label">Facebook 帳號（選填）</label>
-      <input class="form-input" type="text" id="f-social" placeholder="請填寫帳號名稱或網址">
+      <label class="form-label" id="social-account-label">Facebook 帳號 <span class="req">*</span></label>
+      <input class="form-input" type="text" id="f-social" placeholder="請填寫帳號名稱或網址" oninput="validateForm()">
       <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們在社群媒體與您聯繫</div>
     </div>
 
@@ -1158,15 +1158,15 @@ function sourceChanged() {
   const socialInput = document.getElementById('f-social');
   if (src === 'Facebook') {
     socialRow.style.display = '';
-    socialLabel.textContent = 'Facebook 帳號（選填）';
+    socialLabel.innerHTML = 'Facebook 帳號 <span class="req">*</span>';
     socialInput.placeholder = '請填寫 Facebook 帳號名稱';
   } else if (src === '廣告推播') {
     socialRow.style.display = '';
-    socialLabel.textContent = 'Facebook 帳號（選填）';
+    socialLabel.innerHTML = 'Facebook 帳號 <span class="req">*</span>';
     socialInput.placeholder = '請填寫 Facebook 帳號名稱';
   } else if (src === 'Line' || src === 'Instagram') {
     socialRow.style.display = '';
-    socialLabel.textContent = src + ' 帳號（選填）';
+    socialLabel.innerHTML = src + ' 帳號 <span class="req">*</span>';
     socialInput.placeholder = '請填寫 ' + src + ' 帳號名稱';
   } else {
     socialRow.style.display = 'none';
@@ -1223,7 +1223,9 @@ function validateForm() {
   const email = document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : '';
   const needYoutuber = source === 'Youtuber';
   const needPodcaster = source === 'Podcaster';
-  const ok = name && phoneOk && email && pax && product && source && (!needLeader || leader) && (!needYoutuber || youtuber) && (!needPodcaster || podcaster);
+  const social = document.getElementById('f-social') ? document.getElementById('f-social').value.trim() : '';
+  const needSocial = ['Facebook', '廣告推播', 'Line', 'Instagram'].includes(source);
+  const ok = name && phoneOk && email && pax && product && source && (!needLeader || leader) && (!needYoutuber || youtuber) && (!needPodcaster || podcaster) && (!needSocial || social);
   document.getElementById('btn4').disabled = !ok;
   if (ok) document.getElementById('sum4').textContent = name + '・' + pax + '人';
 }

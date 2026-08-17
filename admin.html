@@ -738,7 +738,7 @@ function renderCal() {
     dayBookings.slice(0,3).forEach(b => {
       const chip = document.createElement('div');
       const chipCls = {待確認:'chip-pending',已確認:'chip-confirmed',已取消:'chip-cancelled',已釋放:'chip-released'}[b.status]||'chip-pending';
-      const replyLabel = b.status==='已回覆出席' ? ' ✓出席' : '';
+      const replyLabel = b.status==='已確認' && b.replied ? ' ✓已回覆' : '';
       chip.className = 'booking-chip ' + chipCls;
       chip.textContent = parseTimeHour(b.time) + ' ' + b.name + replyLabel;
       cell.appendChild(chip);
@@ -802,7 +802,7 @@ function buildBookingRow(b) {
   return `<div class="booking-row">
     <div class="booking-row-time">${parseTimeHour(b.time)}</div>
     <div class="booking-row-name">${b.name} <span style="font-size:11px;color:var(--ink3);">· ${b.pax}人</span></div>
-    <div class="booking-row-status" style="color:${statusColor}">${b.status}</div>
+    <div class="booking-row-status" style="color:${statusColor}">${b.status}${b.status==='已確認' && b.replied ? ' ✓已回覆' : ''}</div>
     <div class="booking-row-actions">
       ${canConfirm?`<button class="row-btn confirm" onclick="quickAction('${b.bookingId}','已確認')">確認</button>`:''}
       ${canCancel?`<button class="row-btn cancel" onclick="quickAction('${b.bookingId}','已取消')">取消</button>`:''}
@@ -1031,7 +1031,7 @@ function renderList() {
         <td>${b.name}</td>
         <td>${b.pax}</td>
         <td style="font-size:12px;">${b.product}</td>
-        <td><span class="status-badge status-${b.status}">${b.status}</span></td>
+        <td><span class="status-badge status-${b.status}">${b.status}</span>${b.status==='已確認' && b.replied ? ' <span style="color:var(--confirmed);font-size:11px;">✓已回覆</span>' : ''}</td>
         <td>
           ${canConfirm?`<button class="action-btn confirm" onclick="quickAction('${b.bookingId}','已確認')">確認</button>`:''}
           ${canCancel?`<button class="action-btn cancel" onclick="quickAction('${b.bookingId}','已取消')">取消</button>`:''}

@@ -688,7 +688,7 @@
       <button class="btn-primary" onclick="submitBooking()">送出預約申請</button>
       <button class="btn-secondary" onclick="goStep(4)">← 修改資料</button>
       <div id="stuck-help" style="display:none;text-align:center;font-size:12px;color:var(--ink3);margin-top:8px;">
-        畫面卡住了嗎？<a href="javascript:void(0)" onclick="manualCheckSubmission()" style="color:var(--moss);text-decoration:underline;">點此查詢送出結果</a>
+        送出中如果畫面沒有反應，<a href="javascript:void(0)" onclick="manualCheckSubmission()" style="color:var(--moss);text-decoration:underline;">點此查詢送出結果</a>
       </div>
     </div></div>
   </div>
@@ -1503,11 +1503,12 @@ async function submitBooking() {
 
   pendingSubmission = { payload: payload, resolving: false };
 
-  // 手機切到背景或鎖螢幕時，setTimeout／fetch 可能被瀏覽器整個凍結，
-  // 導致自動逾時機制也一起卡住。8 秒後主動顯示手動查詢入口，
-  // 讓使用者不用乾等一個永遠不會自己恢復的畫面。
+  // 手機或瀏覽器分頁切到背景時，setTimeout／fetch 可能被整個凍結或大幅延遲，
+  // 導致原本設計的自動逾時機制也跟著卡住不會觸發。與其用計時器延遲顯示
+  // （計時器本身就可能被凍結，等於防呆機制失靈），直接從一開始就顯示手動查詢入口，
+  // 確保使用者一定能主動觸發，不會被卡在一個永遠不會恢復的畫面。
   const stuckHelp = document.getElementById('stuck-help');
-  const stuckTimer = setTimeout(function(){ if (stuckHelp) stuckHelp.style.display = ''; }, 8000);
+  if (stuckHelp) stuckHelp.style.display = '';
 
   // 逾時保護：Apps Script 冷啟動實測可能要 10~40 秒才回應，
   // 逾時秒數要夠寬，避免伺服器其實還在正常處理就被前端提早判定失敗。
@@ -1523,7 +1524,6 @@ async function submitBooking() {
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-      clearTimeout(stuckTimer);
       const result = await res.json();
       if (!result.success) {
         // API 回傳失敗

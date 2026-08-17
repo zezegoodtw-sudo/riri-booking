@@ -636,21 +636,15 @@
       <input class="form-input" type="text" id="f-podcaster" placeholder="請填寫 Podcast 節目或主持人名稱" oninput="validateForm()">
     </div>
 
-    <div class="form-group" id="social-account-row" style="display:none">
-      <label class="form-label" id="social-account-label">Facebook 帳號 <span class="req">*</span></label>
-      <input class="form-input" type="text" id="f-social" placeholder="請填寫帳號名稱或網址" oninput="validateForm()">
-      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們在社群媒體與您聯繫</div>
-    </div>
-
     <div class="form-group">
       <label class="form-label">備註（選填）</label>
       <textarea class="form-textarea" id="f-note" placeholder="有任何特殊需求或想讓我們事先了解的事項，歡迎填寫"></textarea>
     </div>
 
     <div class="form-group">
-      <label class="form-label">Facebook 顯示名稱（選填）</label>
-      <input class="form-input" type="text" id="f-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
-      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+      <label class="form-label">Facebook / Line 顯示名稱 <span class="req">*</span></label>
+      <input class="form-input" type="text" id="f-facebook" placeholder="請填寫您的 Facebook 或 Line 顯示名稱" oninput="validateForm()">
+      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">若透過社群詢問過，方便對照帳號及聯繫</div>
     </div>
 
     <div class="sticky-bar"><div class="sticky-inner">
@@ -678,9 +672,8 @@
       <div class="confirm-row" id="c-leader-row" style="display:none"><div class="confirm-key">團主名稱</div><div class="confirm-val" id="c-leader"></div></div>
       <div class="confirm-row" id="c-youtuber-row" style="display:none"><div class="confirm-key">Youtuber</div><div class="confirm-val" id="c-youtuber"></div></div>
       <div class="confirm-row" id="c-podcaster-row" style="display:none"><div class="confirm-key">Podcaster</div><div class="confirm-val" id="c-podcaster"></div></div>
-      <div class="confirm-row" id="c-social-row" style="display:none"><div class="confirm-key">社群帳號</div><div class="confirm-val" id="c-social"></div></div>
       <div class="confirm-row" id="c-note-row"><div class="confirm-key">備註</div><div class="confirm-val" id="c-note"></div></div>
-      <div class="confirm-row" id="c-facebook-row" style="display:none"><div class="confirm-key">FB 名稱</div><div class="confirm-val" id="c-facebook"></div></div>
+      <div class="confirm-row" id="c-facebook-row" style="display:none"><div class="confirm-key">FB / Line 名稱</div><div class="confirm-val" id="c-facebook"></div></div>
     </div>
 
     <div class="notice">
@@ -1160,26 +1153,6 @@ function sourceChanged() {
   podRow.style.display = src === 'Podcaster' ? '' : 'none';
   if (src !== 'Podcaster') document.getElementById('f-podcaster').value = '';
 
-  // 更新社群帳號欄位
-  const socialRow = document.getElementById('social-account-row');
-  const socialLabel = document.getElementById('social-account-label');
-  const socialInput = document.getElementById('f-social');
-  if (src === 'Facebook') {
-    socialRow.style.display = '';
-    socialLabel.innerHTML = 'Facebook 帳號 <span class="req">*</span>';
-    socialInput.placeholder = '請填寫 Facebook 帳號名稱';
-  } else if (src === '廣告推播') {
-    socialRow.style.display = '';
-    socialLabel.innerHTML = 'Facebook 帳號 <span class="req">*</span>';
-    socialInput.placeholder = '請填寫 Facebook 帳號名稱';
-  } else if (src === 'Line' || src === 'Instagram') {
-    socialRow.style.display = '';
-    socialLabel.innerHTML = src + ' 帳號 <span class="req">*</span>';
-    socialInput.placeholder = '請填寫 ' + src + ' 帳號名稱';
-  } else {
-    socialRow.style.display = 'none';
-    socialInput.value = '';
-  }
   validateForm();
 }
 
@@ -1231,9 +1204,8 @@ function validateForm() {
   const email = document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : '';
   const needYoutuber = source === 'Youtuber';
   const needPodcaster = source === 'Podcaster';
-  const social = document.getElementById('f-social') ? document.getElementById('f-social').value.trim() : '';
-  const needSocial = ['Facebook', '廣告推播', 'Line', 'Instagram'].includes(source);
-  const ok = name && phoneOk && email && pax && product && source && (!needLeader || leader) && (!needYoutuber || youtuber) && (!needPodcaster || podcaster) && (!needSocial || social);
+  const facebook = document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '';
+  const ok = name && phoneOk && email && pax && product && source && facebook && (!needLeader || leader) && (!needYoutuber || youtuber) && (!needPodcaster || podcaster);
   document.getElementById('btn4').disabled = !ok;
   if (ok) document.getElementById('sum4').textContent = name + '・' + pax + '人';
 }
@@ -1287,15 +1259,6 @@ function renderConfirm() {
     document.getElementById('c-leader').textContent = leader;
   } else {
     leaderRow.style.display = 'none';
-  }
-  const social = document.getElementById('f-social').value.trim();
-  const socialRow = document.getElementById('c-social-row');
-  const srcVal = document.getElementById('f-source').value;
-  if (social) {
-    socialRow.style.display = '';
-    document.getElementById('c-social').textContent = social;
-  } else {
-    socialRow.style.display = 'none';
   }
   const note     = document.getElementById('f-note').value.trim();
   const facebook = document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '';
@@ -1529,8 +1492,7 @@ async function submitBooking() {
     source:   document.getElementById('f-source').value,
     leader:   document.getElementById('f-leader').value.trim(),
     note:     document.getElementById('f-note').value.trim(),
-    facebook: document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '',
-    social:   document.getElementById('f-social').value.trim(),
+    social:   document.getElementById('f-facebook') ? document.getElementById('f-facebook').value.trim() : '',
     youtuber: document.getElementById('f-youtuber') ? document.getElementById('f-youtuber').value.trim() : '',
     podcaster: document.getElementById('f-podcaster') ? document.getElementById('f-podcaster').value.trim() : '',
     email:    document.getElementById('f-email') ? document.getElementById('f-email').value.trim() : ''

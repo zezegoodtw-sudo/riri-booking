@@ -524,8 +524,8 @@
     <div style="font-size:13px;color:var(--ink3);margin-bottom:16px;" id="slot-date-label"></div>
     <div class="slot-grid" id="slot-grid"></div>
     <div style="font-size:12px;color:var(--ink3);margin-top:14px;line-height:1.7;">
-      · 每次體驗時間為 1 小時<br>
-      · 劃線時段已被預約，請選擇其他時段
+      · 每次體驗時段為 1 小時<br>
+      · 沒有出現的時段表示已被預約，請改選其他時段
     </div>
     <div class="sticky-bar"><div class="sticky-inner">
       <div class="sticky-summary" id="sum3">請選擇時段</div>
@@ -1096,7 +1096,7 @@ function renderSlots() {
   const openSlots = availSlots.filter(h => !bookedHours.has(h));
 
   if (openSlots.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">此日期暫無可預約時段</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">今日預約已滿，請選擇其他日期</div>';
     return;
   }
 

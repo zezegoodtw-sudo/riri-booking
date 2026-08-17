@@ -32,7 +32,7 @@
     background: var(--paper);
     color: var(--ink);
     min-height: 100vh;
-    font-size: 15px;
+    font-size: 16.5px;
     line-height: 1.6;
   }
 
@@ -45,14 +45,14 @@
   }
   .header-logo {
     font-family: 'Noto Serif TC', serif;
-    font-size: 26px;
+    font-size: 28.6px;
     font-weight: 300;
     letter-spacing: 0.2em;
     color: var(--ink);
     margin-bottom: 6px;
   }
   .header-sub {
-    font-size: 12px;
+    font-size: 13.2px;
     color: var(--ink3);
     letter-spacing: 0.15em;
   }
@@ -77,7 +77,7 @@
     width: 28px; height: 28px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
+    font-size: 13.2px;
     font-weight: 500;
     border: 1.5px solid var(--border);
     background: var(--paper);
@@ -86,7 +86,7 @@
   }
   .step-dot.active { background: var(--moss); border-color: var(--moss); color: #fff; }
   .step-dot.done   { background: var(--moss-light); border-color: var(--moss-mid); color: var(--moss); }
-  .step-label { font-size: 11px; color: var(--ink3); letter-spacing: 0.05em; white-space: nowrap; }
+  .step-label { font-size: 12.1px; color: var(--ink3); letter-spacing: 0.05em; white-space: nowrap; }
   .step-label.active { color: var(--moss); font-weight: 500; }
   .step-line {
     flex: 1; height: 1px; background: var(--border);
@@ -99,7 +99,7 @@
   /* ── SECTION TITLE ── */
   .section-title {
     font-family: 'Noto Serif TC', serif;
-    font-size: 17px;
+    font-size: 18.7px;
     font-weight: 400;
     color: var(--ink);
     margin: 28px 0 16px;
@@ -130,13 +130,13 @@
   .loc-card.selected::after {
     content: '✓';
     position: absolute; top: 10px; right: 12px;
-    font-size: 13px; color: var(--moss); font-weight: 500;
+    font-size: 14.3px; color: var(--moss); font-weight: 500;
   }
-  .loc-name { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
-  .loc-addr { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+  .loc-name { font-size: 15.4px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+  .loc-addr { font-size: 12.1px; color: var(--ink3); line-height: 1.5; }
   .loc-tag {
     display: inline-block; margin-top: 8px;
-    font-size: 10px; padding: 2px 8px;
+    font-size: 11px; padding: 2px 8px;
     border-radius: 10px; letter-spacing: 0.05em;
   }
   .loc-tag.taipei { background: #e8f0e8; color: var(--moss); }
@@ -150,22 +150,22 @@
   .cal-nav-btn {
     width: 40px; height: 40px; border-radius: 50%;
     border: 1px solid var(--border); background: none;
-    cursor: pointer; font-size: 16px; color: var(--ink2);
+    cursor: pointer; font-size: 17.6px; color: var(--ink2);
     display: flex; align-items: center; justify-content: center;
     transition: background 0.15s;
   }
   .cal-nav-btn:hover { background: var(--paper2); }
-  .cal-month { font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: 0.05em; }
+  .cal-month { font-size: 16.5px; font-weight: 500; color: var(--ink); letter-spacing: 0.05em; }
   .cal-dow {
     display: grid; grid-template-columns: repeat(7, 1fr);
     text-align: center; margin-bottom: 6px;
   }
-  .cal-dow span { font-size: 11px; color: var(--ink3); padding: 4px 0; }
+  .cal-dow span { font-size: 12.1px; color: var(--ink3); padding: 4px 0; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .cal-day {
     aspect-ratio: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
-    border-radius: 50%; font-size: 13px;
+    border-radius: 50%; font-size: 14.3px;
     cursor: default; color: var(--ink);
     position: relative; transition: all 0.15s;
   }
@@ -175,13 +175,13 @@
   .cal-day.full { color: var(--ink3); }
   .cal-day.full::after {
     content: ''; position: absolute; bottom: 3px;
-    width: 4px; height: 4px; border-radius: 50%;
+    width: 4.4px; height: 4.4px; border-radius: 50%;
     background: var(--danger);
   }
   .cal-day.avail { cursor: pointer; }
   .cal-day.avail::after {
     content: ''; position: absolute; bottom: 3px;
-    width: 4px; height: 4px; border-radius: 50%;
+    width: 4.4px; height: 4.4px; border-radius: 50%;
     background: var(--moss);
   }
   .cal-day.avail:hover { background: var(--moss-light); color: var(--moss); }
@@ -191,15 +191,15 @@
     display: flex; gap: 16px; margin-top: 14px;
     padding-top: 12px; border-top: 1px solid var(--border);
   }
-  .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink3); }
-  .leg-dot { width: 7px; height: 7px; border-radius: 50%; }
+  .cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12.1px; color: var(--ink3); }
+  .leg-dot { width: 7.7px; height: 7.7px; border-radius: 50%; }
 
   /* ── TIME SLOTS ── */
   .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .slot {
     padding: 14px 8px; text-align: center;
     border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-    font-size: 14px; cursor: pointer; transition: all 0.2s;
+    font-size: 15.4px; cursor: pointer; transition: all 0.2s;
     background: var(--paper); color: var(--ink);
   }
   .slot:hover { border-color: var(--moss-mid); background: var(--moss-light); }
@@ -207,12 +207,12 @@
   .slot.taken { color: var(--ink3); cursor: default; background: var(--paper2); border-style: dashed; }
   .slot.taken span { text-decoration: line-through; }
   .slot.hidden-slot { display: none; }
-  .slot-sub { font-size: 10px; margin-top: 2px; opacity: 0.65; }
+  .slot-sub { font-size: 11px; margin-top: 2px; opacity: 0.65; }
 
   /* ── FORM ── */
   .form-group { margin-bottom: 18px; }
   .form-label {
-    display: block; font-size: 12px; color: var(--ink2);
+    display: block; font-size: 13.2px; color: var(--ink2);
     margin-bottom: 6px; letter-spacing: 0.05em;
   }
   .form-label .req { color: var(--warm); margin-left: 3px; }
@@ -220,7 +220,7 @@
     width: 100%; padding: 12px 14px;
     border: 1.5px solid var(--border); border-radius: var(--radius-sm);
     background: var(--paper); color: var(--ink);
-    font-family: 'Noto Sans TC', sans-serif; font-size: 16px;
+    font-family: 'Noto Sans TC', sans-serif; font-size: 17.6px;
     transition: border-color 0.2s; outline: none;
     appearance: none; -webkit-appearance: none;
   }
@@ -231,7 +231,7 @@
   .form-select-wrap::after {
     content: '▾'; position: absolute; right: 14px; top: 50%;
     transform: translateY(-50%); pointer-events: none;
-    color: var(--ink3); font-size: 13px;
+    color: var(--ink3); font-size: 14.3px;
   }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-textarea { resize: vertical; min-height: 72px; }
@@ -248,12 +248,12 @@
     border-bottom: 1px solid var(--border);
   }
   .confirm-loc-badge {
-    font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 500;
+    font-size: 12.1px; padding: 3px 10px; border-radius: 10px; font-weight: 500;
   }
-  .confirm-datetime { font-size: 15px; font-weight: 500; color: var(--ink); }
+  .confirm-datetime { font-size: 16.5px; font-weight: 500; color: var(--ink); }
   .confirm-row {
     display: flex; gap: 8px; padding: 5px 0;
-    font-size: 13px; border-bottom: 1px solid var(--border);
+    font-size: 14.3px; border-bottom: 1px solid var(--border);
   }
   .confirm-row:last-child { border-bottom: none; }
   .confirm-key { color: var(--ink3); width: 110px; flex-shrink: 0; }
@@ -263,7 +263,7 @@
   .notice {
     background: var(--warm-light); border: 1px solid rgba(196,112,58,0.2);
     border-radius: var(--radius-sm); padding: 14px 16px;
-    font-size: 13px; color: var(--ink2); line-height: 1.7;
+    font-size: 14.3px; color: var(--ink2); line-height: 1.7;
     margin-bottom: 20px;
   }
   .notice strong { color: var(--warm); font-weight: 500; }
@@ -276,14 +276,14 @@
     width: 64px; height: 64px; border-radius: 50%;
     background: var(--moss-light); border: 2px solid var(--moss-mid);
     display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 20px; font-size: 26px;
+    margin: 0 auto 20px; font-size: 28.6px;
   }
   .success-title {
     font-family: 'Noto Serif TC', serif;
-    font-size: 20px; font-weight: 400; color: var(--ink);
+    font-size: 22px; font-weight: 400; color: var(--ink);
     margin-bottom: 8px; letter-spacing: 0.05em;
   }
-  .success-sub { font-size: 13px; color: var(--ink3); line-height: 1.8; }
+  .success-sub { font-size: 14.3px; color: var(--ink3); line-height: 1.8; }
 
   /* ── BUTTONS ── */
   .btn-primary {
@@ -291,7 +291,7 @@
     background: var(--moss); color: #fff;
     border: none; border-radius: var(--radius);
     font-family: 'Noto Sans TC', sans-serif;
-    font-size: 15px; font-weight: 500;
+    font-size: 16.5px; font-weight: 500;
     cursor: pointer; letter-spacing: 0.05em;
     transition: background 0.2s, opacity 0.2s;
   }
@@ -306,7 +306,7 @@
     background: none; color: var(--ink2);
     border: 1.5px solid var(--border); border-radius: var(--radius);
     font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px; cursor: pointer;
+    font-size: 15.4px; cursor: pointer;
     transition: background 0.15s; margin-top: 10px;
   }
   .btn-secondary:hover { background: var(--paper2); }
@@ -323,7 +323,7 @@
   }
   .sticky-inner { max-width: 440px; margin: 0 auto; }
   .sticky-summary {
-    font-size: 12px; color: var(--ink3); margin-bottom: 8px;
+    font-size: 13.2px; color: var(--ink3); margin-bottom: 8px;
     text-align: center; letter-spacing: 0.03em;
   }
 
@@ -385,107 +385,107 @@
 
     <!-- MYZOO 展示商品說明（選到 MYZOO 才顯示） -->
     <div id="myzoo-products-note" style="display:none;margin-top:12px;background:#faf0e8;border:1px solid rgba(196,112,58,0.2);border-radius:var(--radius-sm);padding:14px 16px;">
-      <div style="font-size:13px;font-weight:500;color:var(--warm);margin-bottom:8px;">📦 MYZOO 台中體驗點展示商品</div>
-      <div style="font-size:13px;color:var(--ink2);line-height:1.9;">
+      <div style="font-size:14.3px;font-weight:500;color:var(--warm);margin-bottom:8px;">📦 MYZOO 台中體驗點展示商品</div>
+      <div style="font-size:14.3px;color:var(--ink2);line-height:1.9;">
         · 日日枕（S / M / L）<br>
         · 日日枕 Soft<br>
         · 兒童日日枕<br>
         · 三眠制釋壓床墊<br>
         · 日日三折墊
       </div>
-      <div style="font-size:12px;color:var(--ink3);margin-top:8px;line-height:1.6;">
+      <div style="font-size:13.2px;color:var(--ink3);margin-top:8px;line-height:1.6;">
         雙層舒眠床墊目前未於台中展示，如需體驗請前往台北民生體驗點。
       </div>
     </div>
 
     <div style="text-align:center;padding:8px 0 4px;display:flex;justify-content:center;gap:20px;">
-      <button onclick="toggleLookup()" style="background:none;border:none;color:var(--ink3);font-size:13px;cursor:pointer;text-decoration:underline;">查詢已有的預約</button>
-      <button onclick="toggleWaitlist()" style="background:none;border:none;color:var(--warm);font-size:13px;cursor:pointer;text-decoration:underline;">登記候補時段</button>
+      <button onclick="toggleLookup()" style="background:none;border:none;color:var(--ink3);font-size:14.3px;cursor:pointer;text-decoration:underline;">查詢已有的預約</button>
+      <button onclick="toggleWaitlist()" style="background:none;border:none;color:var(--warm);font-size:14.3px;cursor:pointer;text-decoration:underline;">登記候補時段</button>
     </div>
     <div id="lookup-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:8px;">
-      <div style="font-size:14px;font-weight:500;color:var(--ink);margin-bottom:12px;">查詢預約</div>
-      <div style="font-size:13px;color:var(--ink3);margin-bottom:12px;">輸入預約時填寫的手機號碼</div>
+      <div style="font-size:15.4px;font-weight:500;color:var(--ink);margin-bottom:12px;">查詢預約</div>
+      <div style="font-size:14.3px;color:var(--ink3);margin-bottom:12px;">輸入預約時填寫的手機號碼</div>
       <div style="display:flex;gap:8px;">
         <input class="form-input" type="tel" id="lookup-phone" placeholder="0912345678" maxlength="10" style="flex:1;">
-        <button onclick="lookupBooking()" style="padding:12px 16px;background:var(--moss);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;cursor:pointer;white-space:nowrap;">查詢</button>
+        <button onclick="lookupBooking()" style="padding:12px 16px;background:var(--moss);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15.4px;cursor:pointer;white-space:nowrap;">查詢</button>
       </div>
       <div id="lookup-result" style="margin-top:14px;"></div>
     </div>
     <!-- 候補登記表單 -->
     <div id="waitlist-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:8px;">
-      <div style="font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px;">登記候補時段</div>
-      <div style="font-size:13px;color:var(--ink3);margin-bottom:14px;line-height:1.6;">填寫候補資料後，有空缺時段我們會主動聯繫您</div>
+      <div style="font-size:16.5px;font-weight:500;color:var(--ink);margin-bottom:4px;">登記候補時段</div>
+      <div style="font-size:14.3px;color:var(--ink3);margin-bottom:14px;line-height:1.6;">填寫候補資料後，有空缺時段我們會主動聯繫您</div>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
         <div>
-          <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">姓名 <span style="color:var(--warm);">*</span></label>
+          <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">姓名 <span style="color:var(--warm);">*</span></label>
           <input class="form-input" type="text" id="wl-name" placeholder="王小明">
         </div>
         <div>
-          <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">電話 <span style="color:var(--warm);">*</span></label>
+          <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">電話 <span style="color:var(--warm);">*</span></label>
           <input class="form-input" type="tel" id="wl-phone" placeholder="0912345678" maxlength="10">
         </div>
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">體驗地點 <span style="color:var(--warm);">*</span></label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">體驗地點 <span style="color:var(--warm);">*</span></label>
         <div style="display:flex;gap:10px;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
             <input type="radio" name="wl-location" value="民生體驗點（台北）" style="accent-color:var(--moss);"> 民生體驗點（台北）
           </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
             <input type="radio" name="wl-location" value="MYZOO（台中）" style="accent-color:var(--moss);"> MYZOO（台中）
           </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
             <input type="radio" name="wl-location" value="兩個都可以" style="accent-color:var(--moss);"> 兩個都可以
           </label>
         </div>
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">希望日期 <span style="color:var(--warm);">*</span></label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">希望日期 <span style="color:var(--warm);">*</span></label>
         <input class="form-input" type="text" id="wl-dates" placeholder="例如：7/5、7/12 週末都可以、越快越好">
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">希望時段</label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">希望時段</label>
         <input class="form-input" type="text" id="wl-slots" placeholder="例如：下午 2點後、上午 10-11點都可以">
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">備註</label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">備註</label>
         <textarea class="form-textarea" id="wl-note" placeholder="例如：已有 6/28 預約，但更希望 6/21；或臨時有事想改時段..." style="min-height:60px;"></textarea>
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:8px;">有空缺時段，希望如何聯繫您？ <span style="color:var(--warm);">*</span></label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:8px;">有空缺時段，希望如何聯繫您？ <span style="color:var(--warm);">*</span></label>
         <div style="display:flex;gap:16px;">
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
             <input type="radio" name="wl-contact" value="電話" id="wl-contact-phone" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> 電話
           </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:14px;cursor:pointer;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
             <input type="radio" name="wl-contact" value="LINE" id="wl-contact-line" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> LINE
           </label>
         </div>
       </div>
 
       <div id="wl-line-wrap" style="display:none;margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">LINE 顯示名稱 <span style="color:var(--warm);">*</span></label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">LINE 顯示名稱 <span style="color:var(--warm);">*</span></label>
         <input class="form-input" type="text" id="wl-line-name" placeholder="請填寫您的 LINE 顯示名稱">
-        <div style="font-size:11px;color:var(--warm);margin-top:5px;line-height:1.6;">
+        <div style="font-size:12.1px;color:var(--warm);margin-top:5px;line-height:1.6;">
           請先加入日日居官方 LINE：<strong>@781nevvb</strong>，我們才能透過 LINE 聯繫您
         </div>
-        <a href="https://line.me/ti/p/@781nevvb" target="_blank" style="display:inline-block;margin-top:8px;background:#06C755;color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:13px;font-weight:500;">加入官方 LINE</a>
+        <a href="https://line.me/ti/p/@781nevvb" target="_blank" style="display:inline-block;margin-top:8px;background:#06C755;color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:14.3px;font-weight:500;">加入官方 LINE</a>
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:12px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱（選填）</label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱（選填）</label>
         <input class="form-input" type="text" id="wl-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
-        <div style="font-size:11px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+        <div style="font-size:12.1px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
       </div>
 
       <div id="wl-result" style="margin-bottom:10px;"></div>
-      <button onclick="submitWaitlist()" style="width:100%;padding:13px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;">送出候補登記</button>
+      <button onclick="submitWaitlist()" style="width:100%;padding:13px;background:var(--warm);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15.4px;font-weight:500;cursor:pointer;">送出候補登記</button>
     </div>
 
     <div class="sticky-bar"><div class="sticky-inner">
@@ -521,9 +521,9 @@
   <!-- ── STEP 3: TIME SLOT ── -->
   <div id="step3" style="display:none">
     <div class="section-title"><span></span>選擇體驗時段</div>
-    <div style="font-size:13px;color:var(--ink3);margin-bottom:16px;" id="slot-date-label"></div>
+    <div style="font-size:14.3px;color:var(--ink3);margin-bottom:16px;" id="slot-date-label"></div>
     <div class="slot-grid" id="slot-grid"></div>
-    <div style="font-size:12px;color:var(--ink3);margin-top:14px;line-height:1.7;">
+    <div style="font-size:13.2px;color:var(--ink3);margin-top:14px;line-height:1.7;">
       · 每次體驗時段為 1 小時<br>
       · 沒有出現的時段表示已被預約，請改選其他時段
     </div>
@@ -546,7 +546,7 @@
       <div class="form-group">
         <label class="form-label">聯絡電話 <span class="req">*</span></label>
         <input class="form-input" type="tel" id="f-phone" placeholder="0912345678" oninput="validateForm()" maxlength="10">
-        <div id="phone-err" style="display:none;font-size:11px;color:var(--danger);margin-top:4px;">請填寫 10 碼手機號碼</div>
+        <div id="phone-err" style="display:none;font-size:12.1px;color:var(--danger);margin-top:4px;">請填寫 10 碼手機號碼</div>
       </div>
     </div>
 
@@ -554,7 +554,7 @@
     <div class="form-group">
       <label class="form-label">Email <span class="req">*</span></label>
       <input class="form-input" type="email" id="f-email" placeholder="example@gmail.com" oninput="validateForm()">
-      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">確認信與前一天提醒信將寄送至此信箱</div>
+      <div style="font-size:12.1px;color:var(--ink3);margin-top:4px;">確認信與前一天提醒信將寄送至此信箱</div>
     </div>
 
     <div class="form-group">
@@ -573,32 +573,32 @@
     <div class="form-group">
       <label class="form-label">想體驗的商品 <span class="req">*</span>（可複選）</label>
       <div id="f-product-wrap" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--paper);">
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" id="p-all" value="全部都想體驗" onchange="productAllChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           全部都想體驗
         </label>
         <div style="height:1px;background:var(--border);margin:6px 0;"></div>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" value="三眠制釋壓床墊" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           三眠制釋壓床墊
         </label>
-        <label id="p-double-mattress-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label id="p-double-mattress-row" style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" id="p-double-mattress" value="雙層舒眠床墊" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           雙層舒眠床墊
         </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" value="日日枕" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           日日枕
         </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" value="日日三折墊" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           日日三折墊
         </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" value="床＋枕頭" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           床＋枕頭
         </label>
-        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink);padding:4px 0;">
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:15.4px;color:var(--ink);padding:4px 0;">
           <input type="checkbox" class="p-item" value="尚未確定，想先了解" onchange="productChanged()" style="width:16px;height:16px;accent-color:var(--moss);cursor:pointer;">
           尚未確定，想先了解
         </label>
@@ -648,7 +648,7 @@
     <div class="form-group">
       <label class="form-label">Facebook / Line 顯示名稱 <span class="req">*</span></label>
       <input class="form-input" type="text" id="f-facebook" placeholder="請填寫您的 Facebook 或 Line 顯示名稱" oninput="validateForm()">
-      <div style="font-size:11px;color:var(--ink3);margin-top:4px;">若透過社群詢問過，方便對照帳號及聯繫</div>
+      <div style="font-size:12.1px;color:var(--ink3);margin-top:4px;">若透過社群詢問過，方便對照帳號及聯繫</div>
     </div>
 
     <div class="sticky-bar"><div class="sticky-inner">
@@ -691,7 +691,7 @@
     <div class="sticky-bar"><div class="sticky-inner">
       <button class="btn-primary" onclick="submitBooking()">送出預約申請</button>
       <button class="btn-secondary" onclick="goStep(4)">← 修改資料</button>
-      <div id="stuck-help" style="text-align:center;font-size:12px;color:var(--ink3);margin-top:8px;">
+      <div id="stuck-help" style="text-align:center;font-size:13.2px;color:var(--ink3);margin-top:8px;">
         送出中如果畫面沒有反應，<a href="javascript:void(0)" onclick="manualCheckSubmission()" style="color:var(--moss);text-decoration:underline;">點此查詢送出結果</a>
       </div>
     </div></div>
@@ -706,20 +706,20 @@
         感謝您，<span id="s-name"></span>！<br>
         我們將於週一至週五 9:00–18:00 上班時間 60 分鐘內確認時段
       </div>
-      <div style="margin-top:20px;padding:16px;background:var(--paper2);border-radius:var(--radius);font-size:13px;color:var(--ink2);line-height:1.8;" id="s-summary"></div>
+      <div style="margin-top:20px;padding:16px;background:var(--paper2);border-radius:var(--radius);font-size:14.3px;color:var(--ink2);line-height:1.8;" id="s-summary"></div>
 
       <div style="margin-top:24px;padding:20px;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:var(--radius);text-align:center;">
-        <div style="font-size:13px;color:#2e7d32;margin-bottom:4px;font-weight:500;">尚未加入日日居官方 LINE？</div>
-        <div style="font-size:12px;color:#388e3c;margin-bottom:14px;line-height:1.6;">加入後我們才能發送預約確認與前一天提醒訊息</div>
+        <div style="font-size:14.3px;color:#2e7d32;margin-bottom:4px;font-weight:500;">尚未加入日日居官方 LINE？</div>
+        <div style="font-size:13.2px;color:#388e3c;margin-bottom:14px;line-height:1.6;">加入後我們才能發送預約確認與前一天提醒訊息</div>
         <a href="https://line.me/ti/p/@781nevvb" target="_blank"
-           style="display:inline-flex;align-items:center;gap:8px;background:#06C755;color:#fff;text-decoration:none;padding:13px 28px;border-radius:10px;font-size:14px;font-weight:500;letter-spacing:0.03em;">
+           style="display:inline-flex;align-items:center;gap:8px;background:#06C755;color:#fff;text-decoration:none;padding:13px 28px;border-radius:10px;font-size:15.4px;font-weight:500;letter-spacing:0.03em;">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.02 2 11c0 3.07 1.56 5.8 4 7.54V22l3.5-2.03C10.3 20.3 11.14 20.4 12 20.4c5.52 0 10-4.02 10-9S17.52 2 12 2zm1 13.5h-2v-5h2v5zm0-7h-2V6.5h2V8.5z"/></svg>
           加入 LINE 官方帳號
         </a>
-        <div style="font-size:11px;color:#66bb6a;margin-top:10px;">LINE ID：@781nevvb</div>
+        <div style="font-size:12.1px;color:#66bb6a;margin-top:10px;">LINE ID：@781nevvb</div>
       </div>
 
-      <div style="margin-top:16px;padding:14px;background:var(--warm-light);border:1px solid rgba(196,112,58,0.2);border-radius:var(--radius-sm);font-size:12px;color:var(--ink2);line-height:1.7;text-align:left;">
+      <div style="margin-top:16px;padding:14px;background:var(--warm-light);border:1px solid rgba(196,112,58,0.2);border-radius:var(--radius-sm);font-size:13.2px;color:var(--ink2);line-height:1.7;text-align:left;">
         <strong style="color:var(--warm);">接下來的流程</strong><br>
         · 預約送出 → 週一至週五 9:00–18:00 上班時間 60 分鐘內確認，<strong>確認信將寄送至您的 Email</strong><br>
         · 體驗前一天上午 9:00 → Email 提醒信（含確認出席按鈕）<br>
@@ -1087,7 +1087,7 @@ function renderSlots() {
   grid.innerHTML = '';
 
   if (availSlots.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">此日期暫無可預約時段</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:14.3px;padding:20px;">此日期暫無可預約時段</div>';
     return;
   }
 
@@ -1096,7 +1096,7 @@ function renderSlots() {
   const openSlots = availSlots.filter(h => !bookedHours.has(h));
 
   if (openSlots.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:13px;padding:20px;">今日預約已滿，請選擇其他日期</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--ink3);font-size:14.3px;padding:20px;">今日預約已滿，請選擇其他日期</div>';
     return;
   }
 
@@ -1345,15 +1345,15 @@ async function lookupBooking() {
   const phone = document.getElementById('lookup-phone').value.replace(/\D/g,'');
   const result = document.getElementById('lookup-result');
   if (!/^09\d{8}$/.test(phone)) {
-    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請輸入正確的10碼手機號碼</div>';
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請輸入正確的10碼手機號碼</div>';
     return;
   }
-  result.innerHTML = '<div style="color:var(--ink3);font-size:13px;">查詢中...</div>';
+  result.innerHTML = '<div style="color:var(--ink3);font-size:14.3px;">查詢中...</div>';
   try {
     const resp = await fetch(API_URL + '?action=lookup&phone=' + phone);
     const data = await resp.json();
     if (!data.success || !data.bookings || data.bookings.length === 0) {
-      result.innerHTML = '<div style="color:var(--ink3);font-size:13px;text-align:center;padding:12px;">找不到此電話的預約紀錄</div>';
+      result.innerHTML = '<div style="color:var(--ink3);font-size:14.3px;text-align:center;padding:12px;">找不到此電話的預約紀錄</div>';
       return;
     }
     let html = '';
@@ -1365,25 +1365,25 @@ async function lookupBooking() {
       var copyText = '您好，我想申請更改預約時間\n姓名：' + b.name + '\n目前預約：' + dateStr + ' ' + timeStr + '\n希望更改為：';
       html += '<div style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px;background:var(--paper);">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
-          '<div style="font-size:14px;font-weight:500;color:var(--ink);">' + b.location + '</div>' +
-          '<div style="font-size:12px;font-weight:500;color:' + statusColor + ';">' + b.status + '</div>' +
+          '<div style="font-size:15.4px;font-weight:500;color:var(--ink);">' + b.location + '</div>' +
+          '<div style="font-size:13.2px;font-weight:500;color:' + statusColor + ';">' + b.status + '</div>' +
         '</div>' +
-        '<div style="font-size:13px;color:var(--ink2);">' + dateStr + '　' + timeStr + '</div>' +
-        '<div style="font-size:12px;color:var(--ink3);margin-top:4px;">' + b.name + ' · ' + b.pax + '人 · ' + b.product + '</div>' +
+        '<div style="font-size:14.3px;color:var(--ink2);">' + dateStr + '　' + timeStr + '</div>' +
+        '<div style="font-size:13.2px;color:var(--ink3);margin-top:4px;">' + b.name + ' · ' + b.pax + '人 · ' + b.product + '</div>' +
         (canChange ?
           '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">' +
             '<button onclick="copyLookupInfo(\'' + copyText.replace(/'/g,"\\'").replace(/\n/g,'\\n') + '\')" ' +
-            'style="font-size:12px;padding:7px 14px;background:var(--paper2);color:var(--ink2);border:1px solid var(--border);border-radius:6px;cursor:pointer;">📋 複製預約資訊</button>' +
+            'style="font-size:13.2px;padding:7px 14px;background:var(--paper2);color:var(--ink2);border:1px solid var(--border);border-radius:6px;cursor:pointer;">📋 複製預約資訊</button>' +
             '<a href="https://line.me/ti/p/@781nevvb" target="_blank" ' +
-            'style="display:inline-block;font-size:12px;padding:7px 14px;background:#06C755;color:#fff;border-radius:6px;text-decoration:none;font-weight:500;">✏️ 聯絡 LINE 客服</a>' +
+            'style="display:inline-block;font-size:13.2px;padding:7px 14px;background:#06C755;color:#fff;border-radius:6px;text-decoration:none;font-weight:500;">✏️ 聯絡 LINE 客服</a>' +
           '</div>' +
-          '<div style="font-size:11px;color:var(--ink3);margin-top:6px;line-height:1.6;">複製預約資訊後，開啟 LINE 客服貼上，告知希望更改的日期與時間</div>'
+          '<div style="font-size:12.1px;color:var(--ink3);margin-top:6px;line-height:1.6;">複製預約資訊後，開啟 LINE 客服貼上，告知希望更改的日期與時間</div>'
         : '') +
       '</div>';
     });
     result.innerHTML = html;
   } catch(e) {
-    result.innerHTML = '<div style="color:var(--ink3);font-size:13px;text-align:center;padding:12px;">查詢失敗，請稍後再試</div>';
+    result.innerHTML = '<div style="color:var(--ink3);font-size:14.3px;text-align:center;padding:12px;">查詢失敗，請稍後再試</div>';
   }
 }
 
@@ -1412,21 +1412,21 @@ async function submitWaitlist() {
   const result = document.getElementById('wl-result');
 
   if (!name || !phone || !loc || !dates || !contact) {
-    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請填寫所有必填欄位</div>';
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請填寫所有必填欄位</div>';
     return;
   }
   if (!/^09\d{8}$/.test(phone)) {
-    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請輸入正確的 10 碼手機號碼</div>';
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請輸入正確的 10 碼手機號碼</div>';
     return;
   }
   const isLine = contact.value === 'LINE';
   const lineName = document.getElementById('wl-line-name').value.trim();
   if (isLine && !lineName) {
-    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">請填寫 LINE 顯示名稱</div>';
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請填寫 LINE 顯示名稱</div>';
     return;
   }
 
-  result.innerHTML = '<div style="color:var(--ink3);font-size:13px;">送出中...</div>';
+  result.innerHTML = '<div style="color:var(--ink3);font-size:14.3px;">送出中...</div>';
 
   try {
     await fetch(API_URL, {
@@ -1443,13 +1443,13 @@ async function submitWaitlist() {
         facebook:      document.getElementById('wl-facebook') ? document.getElementById('wl-facebook').value.trim() : '',
       })
     });
-    result.innerHTML = '<div style="color:var(--moss);font-size:13px;font-weight:500;">✓ 候補登記成功！有空缺時段我們會主動聯繫您。</div>';
+    result.innerHTML = '<div style="color:var(--moss);font-size:14.3px;font-weight:500;">✓ 候補登記成功！有空缺時段我們會主動聯繫您。</div>';
     // 清空表單
     ['wl-name','wl-dates','wl-slots','wl-note','wl-line-name'].forEach(id => document.getElementById(id).value = '');
     document.querySelectorAll('input[name="wl-location"], input[name="wl-contact"]').forEach(r => r.checked = false);
     document.getElementById('wl-line-wrap').style.display = 'none';
   } catch(e) {
-    result.innerHTML = '<div style="color:var(--danger);font-size:13px;">送出失敗，請稍後再試</div>';
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">送出失敗，請稍後再試</div>';
   }
 }
 
@@ -1471,7 +1471,7 @@ function copyLookupInfo(text) {
 function showLookupCopyToast() {
   var toast = document.createElement('div');
   toast.textContent = '✓ 已複製！請開啟 LINE 貼上';
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1714;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:999;white-space:nowrap;';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1714;color:#fff;padding:10px 20px;border-radius:8px;font-size:14.3px;z-index:999;white-space:nowrap;';
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 2500);
 }

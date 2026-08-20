@@ -896,19 +896,43 @@ function applyScheduleRows(rows) {
   });
 }
 
-async function preloadBookings() {
+// 記錄哪些月份已經抓過預約資料，換月看日曆時才需要重新打 API
+let loadedBookingMonths = new Set();
+
+// 強制重新抓某個月份的預約資料（不管有沒有快取過），用在真的需要最新資料的時候（例如進到選時段頁）
+async function fetchBookingsForMonth(y, m) {
+  const ym = y + '/' + String(m+1).padStart(2,'0');
   try {
-    const now = new Date();
-    const ym  = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
-    const r   = await fetch(API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym));
-    const d   = await r.json();
-    applyBookings(d.success ? d.bookings : null);
-  } catch(e) { console.warn('預約資料預載失敗', e); }
+    const r = await fetch(API_URL + '?action=getBookings&ym=' + encodeURIComponent(ym));
+    const d = await r.json();
+    if (d.success) applyBookings(d.bookings, ym);
+    loadedBookingMonths.add(ym);
+  } catch(e) { console.warn('預約資料載入失敗', e); }
 }
 
-function applyBookings(bookings) {
+// 該月份沒抓過才抓，用在日曆換月顯示紅點，不需要每次都強制重打 API
+async function ensureBookingsLoaded(y, m) {
+  const ym = y + '/' + String(m+1).padStart(2,'0');
+  if (loadedBookingMonths.has(ym)) return;
+  await fetchBookingsForMonth(y, m);
+}
+
+// 選時段頁一律用「目前選擇的日期」所在月份強制重新抓取，確保最新
+async function preloadBookings() {
+  const now = new Date();
+  const y = state.year  != null ? state.year  : now.getFullYear();
+  const m = state.month != null ? state.month : now.getMonth();
+  await fetchBookingsForMonth(y, m);
+}
+
+function applyBookings(bookings, ym) {
   if (!bookings) return;
-  preloadedBookings = {};
+  if (ym) {
+    // 只清掉這個月份的舊快取，避免影響其他已快取月份的資料
+    Object.keys(preloadedBookings).forEach(k => { if (k.startsWith(ym + '/')) delete preloadedBookings[k]; });
+  } else {
+    preloadedBookings = {};
+  }
   bookings.forEach(b => {
     if (!['待確認','已確認'].includes(b.status)) return;
     const dateNorm = b.date ? b.date.replace(/\./g,'/').split(' ')[0].split('/').map((v,i)=>i===0?v:v.padStart(2,'0')).join('/') : '';
@@ -928,7 +952,10 @@ async function loadInitData() {
     if (d.success) {
       applyScheduleRows(d.schedule);
       applyOpenMonth(d.openMonth);
-      applyBookings(d.bookings);
+      const now = new Date();
+      const curYm = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
+      applyBookings(d.bookings, curYm);
+      loadedBookingMonths.add(curYm);
     }
   } catch(e) {
     console.warn('初始資料載入失敗，改用個別 API', e);
@@ -965,15 +992,21 @@ function getDateStatus(loc, y, m, d) {
     const s = String(override.slots || '').trim().toLowerCase();
     if (s === '休息' || s === 'closed') return 'closed';
     if (s === '已滿' || s === 'full')   return 'full';
-    if (s === '開放' || s) return 'available';
+    // 有覆蓋設定但沒指定任何時段（後台手動關閉但未填休息/已滿關鍵字），視為額滿
+    if (!s) return 'full';
+  } else {
+    // MYZOO：國定假日不開放
+    if (loc === 'myzoo' && TW_HOLIDAYS[dateStr]) return 'closed';
+    // 預設規則：民生週六日(dow=0或6)，MYZOO週一~五(dow=1~5)
+    if (!rule.openDays.includes(dow)) return 'closed';
   }
 
-  // MYZOO：國定假日不開放
-  if (loc === 'myzoo' && TW_HOLIDAYS[dateStr]) return 'closed';
-
-  // 預設規則：民生週六日(dow=0或6)，MYZOO週一~五(dow=1~5)
-  if (!rule.openDays.includes(dow)) return 'closed';
-  return 'available';
+  // 不管是預設規則還是有指定時段清單，最終都要扣掉已被預約的時段，
+  // 剛好被訂光（或後台指定的時段清單本身就是空的）也算額滿，前台不讓客人點進去
+  const avail  = getAvailableSlots(loc, y, m, d);
+  const booked = getBookedHours(loc, y, m, d);
+  const remaining = avail.filter(h => !booked.has(h));
+  return remaining.length === 0 ? 'full' : 'available';
 }
 
 function getAvailableSlots(loc, y, m, d) {
@@ -1018,12 +1051,14 @@ function goStep(n) {
   }
   updateStepBar(n);
   if (n === 2) {
-    // 確保 openMonth 和 schedule 都載入完才渲染日曆
+    // 確保 openMonth、schedule、當月預約資料都載入完才渲染日曆（紅點判斷需要用到預約資料）
     Promise.all([
       loadSchedule().catch(() => {}),
       loadOpenMonth().catch(() => {})
     ]).then(() => {
       autoAdvanceMonth();
+      return ensureBookingsLoaded(viewYear, viewMonth);
+    }).then(() => {
       renderCal();
     });
   }
@@ -1107,7 +1142,7 @@ function changeMonth(dir) {
   if (newM < 0)  { newM = 11; newY--; }
   if (!isMonthAllowed(newY, newM)) return;
   viewYear = newY; viewMonth = newM;
-  renderCal();
+  ensureBookingsLoaded(viewYear, viewMonth).then(renderCal);
 }
 
 /* ── SLOTS ── */

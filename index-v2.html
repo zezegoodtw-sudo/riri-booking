@@ -322,7 +322,7 @@
     transition: background 0.2s, opacity 0.2s;
   }
   .btn-primary:hover { background: #559C91; }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary:disabled { background: var(--paper3); color: var(--ink3); opacity: 1; cursor: not-allowed; }
   /* 送出中的查詢入口：純 CSS 跟著按鈕的 disabled 狀態顯示，不依賴 JS 額外執行一行程式碼去切換，
      避免任何時序問題或外部因素干擾 JS 執行，導致這個防呆連結沒有跟著顯示出來 */
   #stuck-help { display: none; }

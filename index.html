@@ -1148,7 +1148,7 @@ function changeMonth(dir) {
 /* ── SLOTS ── */
 function renderSlots() {
   const dow = new Date(state.year, state.month, state.day).getDay();
-  const label = (state.month+1) + '月' + state.day + '日（星期' + DAYS_ZH[dow] + '）可用時段';
+  const label = (state.month+1) + '月' + state.day + '日（星期' + DAYS_ZH[dow] + '）可預約時段';
   document.getElementById('slot-date-label').textContent = label;
 
   const loc = state.location || 'minsheng';

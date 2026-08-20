@@ -12,6 +12,9 @@
     --ink2: #79776F;
     --ink3: #A8A7A4;
     --ink-light: #EBEAEA;
+    --gray-dark: #4d4d4d;
+    --moss-vivid: #66C0B3;
+    --moss-vivid-hover: #549D92;
     --paper: #faf8f4;
     --paper2: #f2efe9;
     --paper3: #e8e4dc;
@@ -83,14 +86,14 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 13.2px;
     font-weight: 500;
-    border: 1.5px solid var(--border);
+    border: 1.5px solid var(--gray-dark);
     background: var(--paper);
-    color: var(--ink3);
+    color: var(--gray-dark);
     transition: all 0.3s;
   }
   .step-dot.active { background: var(--moss); border-color: var(--moss); color: #fff; }
   .step-dot.done   { background: var(--moss-light); border-color: var(--moss-mid); color: var(--moss); }
-  .step-label { font-size: 12.1px; color: var(--ink3); letter-spacing: 0.05em; white-space: nowrap; }
+  .step-label { font-size: 12.1px; color: var(--gray-dark); letter-spacing: 0.05em; white-space: nowrap; }
   .step-label.active { color: var(--moss); font-weight: 500; }
   .step-line {
     flex: 1; height: 1px; background: var(--border);
@@ -121,7 +124,7 @@
   /* ── LOCATION CARDS ── */
   .loc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .loc-card {
-    border: 3.5px solid var(--border);
+    border: 3.5px solid var(--gray-dark);
     border-radius: var(--radius);
     padding: 18px 16px;
     cursor: pointer;
@@ -137,7 +140,7 @@
     font-size: 14.3px; color: var(--moss); font-weight: 500;
   }
   .loc-name { font-size: 15.4px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
-  .loc-addr { font-size: 12.1px; color: var(--ink3); line-height: 1.5; }
+  .loc-addr { font-size: 12.1px; color: var(--gray-dark); line-height: 1.5; }
   .loc-tag {
     display: inline-block; margin-top: 8px;
     font-size: 13.3px; padding: 2.4px 9.7px;
@@ -163,9 +166,9 @@
   .qa-icon { font-size: 20px; line-height: 1; }
   .qa-label { font-size: 13.2px; font-weight: 500; line-height: 1.4; }
   .qa-sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
-  .qa-lookup   { background: var(--moss-light); color: var(--moss); }
-  .qa-waitlist { background: var(--yellowgreen-light); color: var(--yellowgreen); }
-  .qa-change   { background: var(--ink-light); color: var(--ink); }
+  .qa-lookup   { background: var(--moss-light); color: var(--gray-dark); }
+  .qa-waitlist { background: var(--yellowgreen-light); color: var(--gray-dark); }
+  .qa-change   { background: var(--ink-light); color: var(--gray-dark); }
 
   /* ── CALENDAR ── */
   .cal-nav {
@@ -313,14 +316,14 @@
   /* ── BUTTONS ── */
   .btn-primary {
     width: 100%; padding: 16px;
-    background: var(--moss); color: #fff;
+    background: var(--moss-vivid); color: #fff;
     border: none; border-radius: var(--radius);
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 16.5px; font-weight: 500;
     cursor: pointer; letter-spacing: 0.05em;
     transition: background 0.2s, opacity 0.2s;
   }
-  .btn-primary:hover { background: #60918A; }
+  .btn-primary:hover { background: var(--moss-vivid-hover); }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   /* 送出中的查詢入口：純 CSS 跟著按鈕的 disabled 狀態顯示，不依賴 JS 額外執行一行程式碼去切換，
      避免任何時序問題或外部因素干擾 JS 執行，導致這個防呆連結沒有跟著顯示出來 */
@@ -348,7 +351,7 @@
   }
   .sticky-inner { max-width: 440px; margin: 0 auto; }
   .sticky-summary {
-    font-size: 13.2px; color: var(--ink3); margin-bottom: 8px;
+    font-size: 13.2px; color: var(--gray-dark); margin-bottom: 8px;
     text-align: center; letter-spacing: 0.03em;
   }
 

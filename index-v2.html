@@ -7,25 +7,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* V2：套用日日居官方色卡（PANTONE 570C/4230C/3559C/396C/7700C），飽和度降50% */
-    --ink: #54524D;       /* PANTONE 4230C 深咖啡 */
-    --ink2: #78766F;
-    --ink3: #A8A7A0;
+    /* V2：套用日日居官方色卡（PANTONE 570C/4230C/396C/7700C，不用紫色3559C），飽和度保留70% */
+    --ink: #55524C;       /* PANTONE 4230C 深咖啡 */
+    --ink2: #79776F;
+    --ink3: #A8A7A4;
+    --ink-light: #EBEAEA;
     --paper: #faf8f4;
     --paper2: #f2efe9;
     --paper3: #e8e4dc;
-    --moss: #7DA8A2;      /* PANTONE 570C 湖水綠 */
-    --moss-light: #EFF5F4;
-    --moss-mid: #9CBDB8;
-    --warm: #335160;      /* PANTONE 7700C 藍（ZZAdult） */
-    --warm-light: #E7EAEC;
-    --purple: #7E6388;    /* PANTONE 3559C 紫（ZZMom） */
-    --purple-light: #EFECF1;
-    --yellowgreen: #A5A545; /* PANTONE 396C 黃綠（ZZBaby） */
-    --yellowgreen-light: #F4F4E9;
+    --moss: #75B1A8;      /* PANTONE 570C 湖水綠 */
+    --moss-light: #EEF6F5;
+    --moss-mid: #96C4BD;
+    --warm: #2A5469;      /* PANTONE 7700C 藍（ZZAdult） */
+    --warm-light: #E5EAED;
+    --yellowgreen: #B8B832; /* PANTONE 396C 黃綠（ZZBaby） */
+    --yellowgreen-light: #F7F7E6;
     --danger: #c0392b;
     --danger-light: #fdf0ee;
-    --border: rgba(84,82,77,0.16);
+    --border: rgba(85,82,76,0.16);
     --radius: 12px;
     --radius-sm: 8px;
   }
@@ -166,7 +165,7 @@
   .qa-sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
   .qa-lookup   { background: var(--moss-light); color: var(--moss); }
   .qa-waitlist { background: var(--yellowgreen-light); color: var(--yellowgreen); }
-  .qa-change   { background: var(--purple-light); color: var(--purple); }
+  .qa-change   { background: var(--ink-light); color: var(--ink); }
 
   /* ── CALENDAR ── */
   .cal-nav {
@@ -321,7 +320,7 @@
     cursor: pointer; letter-spacing: 0.05em;
     transition: background 0.2s, opacity 0.2s;
   }
-  .btn-primary:hover { background: #678A85; }
+  .btn-primary:hover { background: #60918A; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   /* 送出中的查詢入口：純 CSS 跟著按鈕的 disabled 狀態顯示，不依賴 JS 額外執行一行程式碼去切換，
      避免任何時序問題或外部因素干擾 JS 執行，導致這個防呆連結沒有跟著顯示出來 */
@@ -410,7 +409,7 @@
     </div>
 
     <!-- MYZOO 展示商品說明（選到 MYZOO 才顯示） -->
-    <div id="myzoo-products-note" style="display:none;margin-top:12px;background:var(--warm-light);border:1px solid rgba(51,81,96,0.2);border-radius:var(--radius-sm);padding:14px 16px;">
+    <div id="myzoo-products-note" style="display:none;margin-top:12px;background:var(--warm-light);border:1px solid rgba(42,84,105,0.2);border-radius:var(--radius-sm);padding:14px 16px;">
       <div style="font-size:14.3px;font-weight:500;color:var(--warm);margin-bottom:8px;">📦 MYZOO 台中體驗點展示商品</div>
       <div style="font-size:14.3px;color:var(--ink2);line-height:1.9;">
         · 日日枕（S / M / L）<br>
@@ -521,7 +520,7 @@
         <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱<span id="wl-fb-star" style="display:none;color:var(--warm);"> *</span><span id="wl-fb-optional" style="color:var(--ink3);">（選填）</span></label>
         <input class="form-input" type="text" id="wl-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
         <div id="wl-fb-note" style="font-size:12.1px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
-        <a id="wl-fb-link" href="https://m.me/101431479054476" target="_blank" style="display:none;margin-top:8px;background:var(--purple);color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:14.3px;font-weight:500;">私訊官方粉專</a>
+        <a id="wl-fb-link" href="https://m.me/101431479054476" target="_blank" style="display:none;margin-top:8px;background:var(--ink);color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:14.3px;font-weight:500;">私訊官方粉專</a>
       </div>
 
       <div id="wl-result" style="margin-bottom:10px;"></div>
@@ -1266,8 +1265,8 @@ function renderConfirm() {
 
   const badge = document.getElementById('c-loc-badge');
   badge.textContent = state.locationName;
-  badge.style.background = isMinsheng ? '#EFF5F4' : '#E7EAEC';
-  badge.style.color = isMinsheng ? '#7DA8A2' : '#335160';
+  badge.style.background = isMinsheng ? '#EEF6F5' : '#E5EAED';
+  badge.style.color = isMinsheng ? '#75B1A8' : '#2A5469';
 
   document.getElementById('c-datetime').textContent = dateStr;
   document.getElementById('c-name').textContent    = document.getElementById('f-name').value;
@@ -1528,7 +1527,7 @@ function copyLookupInfo(text) {
 function showLookupCopyToast() {
   var toast = document.createElement('div');
   toast.textContent = '✓ 已複製！請開啟 LINE 貼上';
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#54524D;color:#fff;padding:10px 20px;border-radius:8px;font-size:14.3px;z-index:999;white-space:nowrap;';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#55524C;color:#fff;padding:10px 20px;border-radius:8px;font-size:14.3px;z-index:999;white-space:nowrap;';
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 2500);
 }

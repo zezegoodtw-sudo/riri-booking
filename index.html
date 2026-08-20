@@ -117,7 +117,7 @@
   /* ── LOCATION CARDS ── */
   .loc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .loc-card {
-    border: 1.5px solid var(--border);
+    border: 2.5px solid var(--border);
     border-radius: var(--radius);
     padding: 18px 16px;
     cursor: pointer;
@@ -136,8 +136,9 @@
   .loc-addr { font-size: 12.1px; color: var(--ink3); line-height: 1.5; }
   .loc-tag {
     display: inline-block; margin-top: 8px;
-    font-size: 11px; padding: 2px 8px;
-    border-radius: 10px; letter-spacing: 0.05em;
+    font-size: 12.1px; padding: 2.2px 8.8px;
+    border-radius: 11px; letter-spacing: 0.05em;
+    font-weight: 500;
   }
   .loc-tag.taipei { background: #e8f0e8; color: var(--moss); }
   .loc-tag.taichung { background: #faf0e8; color: var(--warm); }
@@ -160,7 +161,7 @@
   .qa-sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
   .qa-lookup   { background: var(--moss-light); color: var(--moss); }
   .qa-waitlist { background: var(--warm-light); color: var(--warm); }
-  .qa-change   { background: var(--ink); color: #fff; }
+  .qa-change   { background: #4a4a4a; color: #fff; }
 
   /* ── CALENDAR ── */
   .cal-nav {
@@ -489,12 +490,15 @@
 
       <div style="margin-bottom:12px;">
         <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:8px;">有空缺時段，希望如何聯繫您？ <span style="color:var(--warm);">*</span></label>
-        <div style="display:flex;gap:16px;">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;">
           <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
-            <input type="radio" name="wl-contact" value="電話" id="wl-contact-phone" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> 電話
+            <input type="radio" name="wl-contact" value="電話" id="wl-contact-phone" onclick="toggleWlContact()" style="accent-color:var(--moss);"> 電話
           </label>
           <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
-            <input type="radio" name="wl-contact" value="LINE" id="wl-contact-line" onclick="toggleWlLineName()" style="accent-color:var(--moss);"> LINE
+            <input type="radio" name="wl-contact" value="LINE" id="wl-contact-line" onclick="toggleWlContact()" style="accent-color:var(--moss);"> LINE
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:15.4px;cursor:pointer;">
+            <input type="radio" name="wl-contact" value="Facebook" id="wl-contact-fb" onclick="toggleWlContact()" style="accent-color:var(--moss);"> Facebook
           </label>
         </div>
       </div>
@@ -509,9 +513,10 @@
       </div>
 
       <div style="margin-bottom:12px;">
-        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱（選填）</label>
+        <label style="font-size:13.2px;color:var(--ink2);display:block;margin-bottom:5px;">Facebook 顯示名稱<span id="wl-fb-star" style="display:none;color:var(--warm);"> *</span><span id="wl-fb-optional" style="color:var(--ink3);">（選填）</span></label>
         <input class="form-input" type="text" id="wl-facebook" placeholder="若透過 FB 訊息詢問過，請填寫您的 FB 顯示名稱">
-        <div style="font-size:12.1px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+        <div id="wl-fb-note" style="font-size:12.1px;color:var(--ink3);margin-top:4px;">方便我們對照 Facebook 訊息記錄</div>
+        <a id="wl-fb-link" href="https://m.me/101431479054476" target="_blank" style="display:none;margin-top:8px;background:#4a4a4a;color:#fff;text-decoration:none;padding:8px 18px;border-radius:6px;font-size:14.3px;font-weight:500;">私訊官方粉專</a>
       </div>
 
       <div id="wl-result" style="margin-bottom:10px;"></div>
@@ -1428,9 +1433,16 @@ function toggleWaitlist() {
   }
 }
 
-function toggleWlLineName() {
+function toggleWlContact() {
   const isLine = document.getElementById('wl-contact-line').checked;
+  const isFb   = document.getElementById('wl-contact-fb').checked;
   document.getElementById('wl-line-wrap').style.display = isLine ? '' : 'none';
+  document.getElementById('wl-fb-star').style.display = isFb ? '' : 'none';
+  document.getElementById('wl-fb-optional').style.display = isFb ? 'none' : '';
+  document.getElementById('wl-fb-note').textContent = isFb
+    ? '請先私訊日日居官方粉專，我們才能透過 Facebook 聯繫您'
+    : '方便我們對照 Facebook 訊息記錄';
+  document.getElementById('wl-fb-link').style.display = isFb ? 'inline-block' : 'none';
 }
 
 async function submitWaitlist() {
@@ -1455,6 +1467,12 @@ async function submitWaitlist() {
     result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請填寫 LINE 顯示名稱</div>';
     return;
   }
+  const isFb = contact.value === 'Facebook';
+  const fbName = document.getElementById('wl-facebook') ? document.getElementById('wl-facebook').value.trim() : '';
+  if (isFb && !fbName) {
+    result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">請填寫 Facebook 顯示名稱</div>';
+    return;
+  }
 
   result.innerHTML = '<div style="color:var(--ink3);font-size:14.3px;">送出中...</div>';
 
@@ -1475,9 +1493,13 @@ async function submitWaitlist() {
     });
     result.innerHTML = '<div style="color:var(--moss);font-size:14.3px;font-weight:500;">✓ 候補登記成功！有空缺時段我們會主動聯繫您。</div>';
     // 清空表單
-    ['wl-name','wl-dates','wl-slots','wl-note','wl-line-name'].forEach(id => document.getElementById(id).value = '');
+    ['wl-name','wl-dates','wl-slots','wl-note','wl-line-name','wl-facebook'].forEach(id => document.getElementById(id).value = '');
     document.querySelectorAll('input[name="wl-location"], input[name="wl-contact"]').forEach(r => r.checked = false);
     document.getElementById('wl-line-wrap').style.display = 'none';
+    document.getElementById('wl-fb-star').style.display = 'none';
+    document.getElementById('wl-fb-optional').style.display = '';
+    document.getElementById('wl-fb-note').textContent = '方便我們對照 Facebook 訊息記錄';
+    document.getElementById('wl-fb-link').style.display = 'none';
   } catch(e) {
     result.innerHTML = '<div style="color:var(--danger);font-size:14.3px;">送出失敗，請稍後再試</div>';
   }

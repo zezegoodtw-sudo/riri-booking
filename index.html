@@ -142,6 +142,26 @@
   .loc-tag.taipei { background: #e8f0e8; color: var(--moss); }
   .loc-tag.taichung { background: #faf0e8; color: var(--warm); }
 
+  /* ── QUICK ACTIONS ── */
+  .quick-actions {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+    margin: 14px 0 8px;
+  }
+  .qa-block {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 16px 8px; min-height: 84px;
+    border-radius: var(--radius-sm); border: none; cursor: pointer;
+    text-decoration: none; text-align: center; transition: opacity 0.15s, transform 0.15s;
+  }
+  .qa-block:hover { opacity: 0.85; }
+  .qa-block:active { transform: scale(0.97); }
+  .qa-icon { font-size: 20px; line-height: 1; }
+  .qa-label { font-size: 13.2px; font-weight: 500; line-height: 1.4; }
+  .qa-sub { display: block; font-size: 11px; font-weight: 400; opacity: 0.85; margin-top: 2px; }
+  .qa-lookup   { background: var(--moss-light); color: var(--moss); }
+  .qa-waitlist { background: var(--warm-light); color: var(--warm); }
+  .qa-change   { background: var(--ink); color: #fff; }
+
   /* ── CALENDAR ── */
   .cal-nav {
     display: flex; align-items: center; justify-content: space-between;
@@ -398,9 +418,19 @@
       </div>
     </div>
 
-    <div style="text-align:center;padding:8px 0 4px;display:flex;justify-content:center;gap:20px;">
-      <button onclick="toggleLookup()" style="background:none;border:none;color:var(--ink3);font-size:14.3px;cursor:pointer;text-decoration:underline;">查詢已有的預約</button>
-      <button onclick="toggleWaitlist()" style="background:none;border:none;color:var(--warm);font-size:14.3px;cursor:pointer;text-decoration:underline;">登記候補時段</button>
+    <div class="quick-actions">
+      <button type="button" class="qa-block qa-lookup" onclick="toggleLookup()">
+        <div class="qa-icon">🔍</div>
+        <div class="qa-label">查詢已有預約</div>
+      </button>
+      <button type="button" class="qa-block qa-waitlist" onclick="toggleWaitlist()">
+        <div class="qa-icon">📋</div>
+        <div class="qa-label">登記候補時段</div>
+      </button>
+      <a class="qa-block qa-change" href="https://m.me/101431479054476" target="_blank" rel="noopener">
+        <div class="qa-icon">💬</div>
+        <div class="qa-label">預約時段更改<span class="qa-sub">留言給客服 Z編</span></div>
+      </a>
     </div>
     <div id="lookup-panel" style="display:none;background:var(--paper2);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:8px;">
       <div style="font-size:15.4px;font-weight:500;color:var(--ink);margin-bottom:12px;">查詢預約</div>

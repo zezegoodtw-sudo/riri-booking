@@ -7,27 +7,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* V2：套用日日居官方色卡（PANTONE 570C/4230C/396C/7700C，不用紫色3559C），飽和度保留70% */
-    --ink: #55524C;       /* PANTONE 4230C 深咖啡 */
-    --ink2: #79776F;
-    --ink3: #A8A7A4;
-    --ink-light: #EBEAEA;
+    /* V2：套用日日居官方色卡（PANTONE 570C/4230C/396C/7700C，不用紫色3559C），100%原始飽和度 */
+    --ink: #57534A;       /* PANTONE 4230C 深咖啡 */
+    --ink2: #7A7770;
+    --ink3: #A9A7A3;
+    --ink-light: #EBEAE9;
     --gray-dark: #4d4d4d;
-    --moss-vivid: #66C0B3;
-    --moss-vivid-hover: #549D92;
     --paper: #faf8f4;
     --paper2: #f2efe9;
     --paper3: #e8e4dc;
-    --moss: #75B1A8;      /* PANTONE 570C 湖水綠 */
-    --moss-light: #EEF6F5;
-    --moss-mid: #96C4BD;
-    --warm: #2A5469;      /* PANTONE 7700C 藍（ZZAdult） */
-    --warm-light: #E5EAED;
-    --yellowgreen: #B8B832; /* PANTONE 396C 黃綠（ZZBaby） */
-    --yellowgreen-light: #F7F7E6;
+    --moss: #68BEB1;      /* PANTONE 570C 湖水綠 */
+    --moss-light: #EDF7F6;
+    --moss-mid: #8CCDC3;
+    --warm: #1D5876;      /* PANTONE 7700C 藍（ZZAdult） */
+    --warm-light: #E4EBEF;
+    --yellowgreen: #D5D515; /* PANTONE 396C 黃綠（ZZBaby） */
+    --yellowgreen-light: #FAFAE3;
     --danger: #c0392b;
     --danger-light: #fdf0ee;
-    --border: rgba(85,82,76,0.16);
+    --border: rgba(87,83,74,0.16);
     --radius: 12px;
     --radius-sm: 8px;
   }
@@ -316,14 +314,14 @@
   /* ── BUTTONS ── */
   .btn-primary {
     width: 100%; padding: 16px;
-    background: var(--moss-vivid); color: #fff;
+    background: var(--moss); color: #fff;
     border: none; border-radius: var(--radius);
     font-family: 'Noto Sans TC', sans-serif;
     font-size: 16.5px; font-weight: 500;
     cursor: pointer; letter-spacing: 0.05em;
     transition: background 0.2s, opacity 0.2s;
   }
-  .btn-primary:hover { background: var(--moss-vivid-hover); }
+  .btn-primary:hover { background: #559C91; }
   .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
   /* 送出中的查詢入口：純 CSS 跟著按鈕的 disabled 狀態顯示，不依賴 JS 額外執行一行程式碼去切換，
      避免任何時序問題或外部因素干擾 JS 執行，導致這個防呆連結沒有跟著顯示出來 */
@@ -412,7 +410,7 @@
     </div>
 
     <!-- MYZOO 展示商品說明（選到 MYZOO 才顯示） -->
-    <div id="myzoo-products-note" style="display:none;margin-top:12px;background:var(--warm-light);border:1px solid rgba(42,84,105,0.2);border-radius:var(--radius-sm);padding:14px 16px;">
+    <div id="myzoo-products-note" style="display:none;margin-top:12px;background:var(--warm-light);border:1px solid rgba(29,88,118,0.2);border-radius:var(--radius-sm);padding:14px 16px;">
       <div style="font-size:14.3px;font-weight:500;color:var(--warm);margin-bottom:8px;">📦 MYZOO 台中體驗點展示商品</div>
       <div style="font-size:14.3px;color:var(--ink2);line-height:1.9;">
         · 日日枕（S / M / L）<br>
@@ -1268,8 +1266,8 @@ function renderConfirm() {
 
   const badge = document.getElementById('c-loc-badge');
   badge.textContent = state.locationName;
-  badge.style.background = isMinsheng ? '#EEF6F5' : '#E5EAED';
-  badge.style.color = isMinsheng ? '#75B1A8' : '#2A5469';
+  badge.style.background = isMinsheng ? '#EDF7F6' : '#E4EBEF';
+  badge.style.color = isMinsheng ? '#68BEB1' : '#1D5876';
 
   document.getElementById('c-datetime').textContent = dateStr;
   document.getElementById('c-name').textContent    = document.getElementById('f-name').value;
@@ -1530,7 +1528,7 @@ function copyLookupInfo(text) {
 function showLookupCopyToast() {
   var toast = document.createElement('div');
   toast.textContent = '✓ 已複製！請開啟 LINE 貼上';
-  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#55524C;color:#fff;padding:10px 20px;border-radius:8px;font-size:14.3px;z-index:999;white-space:nowrap;';
+  toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#57534A;color:#fff;padding:10px 20px;border-radius:8px;font-size:14.3px;z-index:999;white-space:nowrap;';
   document.body.appendChild(toast);
   setTimeout(function() { toast.remove(); }, 2500);
 }

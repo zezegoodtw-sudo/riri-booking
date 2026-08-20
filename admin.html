@@ -73,7 +73,7 @@ body{font-family:'Helvetica Neue',Arial,sans-serif;background:var(--paper2);colo
 .cal-cell:nth-child(7n){border-right:none;}
 .cal-cell:hover{background:var(--paper2);}
 .cal-cell.empty{cursor:default;background:var(--paper2);opacity:0.5;}
-.cal-cell.past{cursor:default;}
+.cal-cell.past{cursor:pointer;}
 .cal-cell.past .cell-day{color:var(--ink3);}
 .cal-cell.today{background:#fff9f0;}
 .cell-day{font-size:18px;font-weight:500;color:var(--ink);margin-bottom:8px;}
@@ -711,7 +711,7 @@ function renderCal() {
     else if (dayStatus==='normal' && activeBookings.length > 0) dayStatus='partial';
 
     cell.className = 'cal-cell' + (isPast?' past':'') + (isToday?' today':'');
-    if (!isPast) cell.onclick = () => openDayModal(dateStr, dayBookings);
+    cell.onclick = () => openDayModal(dateStr, dayBookings);
 
     // 日期數字
     const dayNum = document.createElement('div');

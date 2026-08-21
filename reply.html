@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日日居 預約回覆</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1714;
+    --ink2: #4a4540;
+    --ink3: #8a8480;
+    --paper: #faf8f4;
+    --paper2: #f2efe9;
+    --moss: #3d5a3e;
+    --moss-light: #e8f0e8;
+    --danger: #c0392b;
+    --danger-light: #fdf0ee;
+    --border: rgba(26,23,20,0.12);
+    --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 16.5px;
+    line-height: 1.6;
+  }
+  .header {
+    text-align: center;
+    padding: 40px 24px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-logo {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 28.6px;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .header-sub { font-size: 13.2px; color: var(--ink3); letter-spacing: 0.15em; }
+  .main { max-width: 440px; margin: 0 auto; padding: 48px 24px; text-align: center; }
+  .icon { font-size: 48px; margin-bottom: 16px; }
+  .msg-title { font-size: 20px; font-weight: 500; margin-bottom: 12px; }
+  .msg-sub { font-size: 14.3px; color: var(--ink2); line-height: 1.8; margin-bottom: 24px; }
+  .card {
+    background: var(--paper2); border-radius: var(--radius);
+    padding: 28px 24px; margin-top: 8px;
+  }
+  .card.success { background: var(--moss-light); }
+  .card.error   { background: var(--danger-light); }
+  .spinner {
+    width: 28px; height: 28px; margin: 0 auto 20px;
+    border: 3px solid var(--border); border-top-color: var(--moss);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .line-link {
+    display: inline-block; margin-top: 20px;
+    background: #06C755; color: #fff; text-decoration: none;
+    padding: 12px 28px; border-radius: 8px; font-size: 14.3px; font-weight: 500;
+  }
+  .footer { margin-top: 40px; font-size: 12.1px; color: var(--ink3); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">日日居</div>
+  <div class="header-sub">體驗預約 · The Sleep Journey</div>
+</div>
+
+<div class="main">
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="msg-sub">處理中，請稍候…</div>
+  </div>
+  <div id="result" style="display:none;"></div>
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
+
+function show(html) {
+  document.getElementById('loading').style.display = 'none';
+  const r = document.getElementById('result');
+  r.style.display = '';
+  r.innerHTML = html;
+}
+
+function renderInvalid() {
+  show(
+    '<div class="icon">⚠️</div>' +
+    '<div class="msg-title">連結無效</div>' +
+    '<div class="card error"><div class="msg-sub" style="margin-bottom:0;">這個連結缺少必要的資訊，請確認是從信件或訊息中的按鈕點擊過來的。</div></div>' +
+    '<div class="footer">日日居 ZEZEGOOD</div>'
+  );
+}
+
+function renderError(errText) {
+  show(
+    '<div class="icon">⚠️</div>' +
+    '<div class="msg-title">處理失敗</div>' +
+    '<div class="card error"><div class="msg-sub" style="margin-bottom:0;">' + (errText || '找不到預約紀錄，可能已經處理過了。') + '</div></div>' +
+    '<div class="footer">如有疑問請聯繫 LINE 客服 @781nevvb</div>'
+  );
+}
+
+function renderSuccess(action) {
+  const isConfirm = action === 'confirm';
+  show(
+    '<div class="icon">' + (isConfirm ? '✅' : '❌') + '</div>' +
+    '<div class="msg-title">' + (isConfirm ? '預約已確認！' : '已取消預約') + '</div>' +
+    '<div class="card success"><div class="msg-sub" style="margin-bottom:0;">' +
+      (isConfirm
+        ? '我們期待您的到來，詳細資訊請留意 LINE 提醒訊息。'
+        : '時段已自動釋放，歡迎日後再次預約。') +
+    '</div></div>' +
+    '<a class="line-link" href="https://line.me/ti/p/@781nevvb" target="_blank">加入官方 LINE</a>' +
+    '<div class="footer">日日居 ZEZEGOOD</div>'
+  );
+}
+
+(async function() {
+  const params = new URLSearchParams(location.search);
+  const token  = params.get('token');
+  const action = params.get('action');
+
+  if (!token || !action || (action !== 'confirm' && action !== 'cancel')) {
+    renderInvalid();
+    return;
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(function(){ controller.abort(); }, 30000);
+
+  try {
+    const res = await fetch(API_URL + '?action=' + encodeURIComponent(action) + '&token=' + encodeURIComponent(token), {
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (data.success) {
+      renderSuccess(action);
+    } else {
+      renderError(data.error);
+    }
+  } catch (e) {
+    renderError('網路連線不穩定，請稍後再試一次，或直接聯繫 LINE 客服。');
+  }
+})();
+</script>
+
+</body>
+</html>

@@ -1013,16 +1013,27 @@ function getAvailableSlots(loc, y, m, d) {
   const rule     = DEFAULT_RULES[loc];
   if (!rule) return [];
   const override = getSheetOverride(loc, y, m, d);
+  let slots;
   if (override && override.slots) {
     const s = String(override.slots).trim().toLowerCase();
     if (s === '已滿' || s === '休息' || s === 'closed' || s === 'full') return [];
-    return s.split(',').map(h => parseInt(h.trim())).filter(h => !isNaN(h));
+    slots = s.split(',').map(h => parseInt(h.trim())).filter(h => !isNaN(h));
+  } else {
+    // 依星期幾取預設時段
+    const dow = new Date(y, m, d).getDay();
+    const daySlots = rule.defaultSlots;
+    slots = Array.isArray(daySlots) ? daySlots : (daySlots[dow] || [10,11,14,15,16]);
   }
-  // 依星期幾取預設時段
-  const dow = new Date(y, m, d).getDay();
-  const slots = rule.defaultSlots;
-  if (Array.isArray(slots)) return slots;
-  return slots[dow] || [10,11,14,15,16];
+  return filterTooSoonSlots(slots, y, m, d);
+}
+
+// 當天的時段至少要留 1 小時給店家確認，時間來不及的時段（含已過去的）就不開放選
+function filterTooSoonSlots(slots, y, m, d) {
+  const now = new Date();
+  const isToday = y === now.getFullYear() && m === now.getMonth() && d === now.getDate();
+  if (!isToday) return slots;
+  const cutoff = now.getTime() + 60 * 60 * 1000;
+  return slots.filter(h => new Date(y, m, d, h, 0, 0).getTime() >= cutoff);
 }
 
 function selectLocation(loc) {

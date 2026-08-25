@@ -1727,7 +1727,7 @@ function showSuccess(payload) {
   document.getElementById('s-summary').innerHTML =
     '<strong>' + state.locationName + '</strong><br>' +
     dateStr + '　' + state.slot + ':00 – ' + (state.slot+1) + ':00<br>' +
-    document.getElementById('f-pax').value + ' 人・' + document.getElementById('f-product').value;
+    document.getElementById('f-pax').value + ' 人・' + getProductValue();
 
   // Hide step bar sticky
   for (let i = 1; i <= 5; i++) {

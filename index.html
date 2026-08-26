@@ -1062,11 +1062,11 @@ function goStep(n) {
   }
   updateStepBar(n);
   if (n === 2) {
-    // 確保 openMonth、schedule、當月預約資料都載入完才渲染日曆（紅點判斷需要用到預約資料）
-    Promise.all([
-      loadSchedule().catch(() => {}),
-      loadOpenMonth().catch(() => {})
-    ]).then(() => {
+    // 共用頁面一進來就先打的那個初始資料 promise（getInit 合併 API），已經
+    // resolve 過的話這裡會立即接著跑，不會再另外打 loadSchedule／loadOpenMonth
+    // 跟它搶 GAS 冷啟動（這正是先前日曆卡住不出現的原因：手速快的話，goStep(2)
+    // 自己另外發的請求會跟頁面初始那支同時搶執行，冷啟動時間疊加造成長時間空白）
+    initDataPromise.then(() => {
       autoAdvanceMonth();
       return ensureBookingsLoaded(viewYear, viewMonth);
     }).then(() => {
@@ -1580,8 +1580,11 @@ function showLookupCopyToast() {
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbwYrbfhEzZoQtpxcoyaGUqdPrLflKeqC2lHYdkh66MXSFV6Iq56WYR9EreT2qoRz_tEbw/exec';
 
-// 頁面載入後背景預載時段設定
-window.addEventListener('load', () => { loadInitData().catch(() => {}); });
+// 一進頁面（不用等圖片字型等資源的 load 事件）就先打一次合併 API 背景預載，
+// 並把這個 promise 存起來給 goStep(2) 共用，避免使用者手速快、進到選日期時
+// 又各自另外打 loadSchedule／loadOpenMonth／ensureBookingsLoaded 三支獨立請求，
+// 跟這支預載的請求同時搶 GAS 冷啟動，讓等待時間疊加卡住畫面。
+let initDataPromise = loadInitData().catch(() => {});
 
 let pendingSubmission = null;
 

@@ -1071,6 +1071,10 @@ function goStep(n) {
       return ensureBookingsLoaded(viewYear, viewMonth);
     }).then(() => {
       renderCal();
+    }).catch((e) => {
+      // 這條鏈任何一步意外出錯都不該讓日曆整個留白卡住，至少用現有資料畫出來
+      console.warn('日曆資料載入過程出錯，改用目前資料渲染', e);
+      renderCal();
     });
   }
   if (n === 3) {

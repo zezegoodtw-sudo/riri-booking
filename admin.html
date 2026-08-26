@@ -482,10 +482,23 @@ async function loadAll() {
       renderTodayBar();
       renderCal();
       initMonthFilter();
+    } else {
+      showLoadError(d.error || '未知錯誤');
     }
   } catch(e) {
-    showToast('載入失敗','error');
+    showLoadError(e.message);
     loadOpenMonth();
+  }
+}
+
+// 資料載入失敗時，明確顯示錯誤＋重試按鈕，避免畫面留白看起來像卡住不動
+function showLoadError(msg) {
+  showToast('載入失敗：' + msg, 'error');
+  const grid = document.getElementById('cal-grid');
+  if (grid) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--danger,#c0392b);padding:40px 20px;">'
+      + '資料載入失敗：' + msg + '<br><br>'
+      + '<button class="topbar-btn" onclick="loadAll()">⟳ 重新載入</button></div>';
   }
 }
 

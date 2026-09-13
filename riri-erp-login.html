@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>日日居 ERP 登入</title>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -37,11 +36,29 @@
     font-size: 13px;
     margin: 0 0 32px;
   }
-  #g_id_signin_container {
-    display: flex;
+  #signin_btn {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    gap: 10px;
+    width: 100%;
+    max-width: 280px;
+    padding: 11px 20px;
+    border-radius: 999px;
+    border: 1px solid #dcd6cb;
+    background: #fff;
+    color: #3c3c3c;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    margin: 0 auto 20px;
   }
+  #signin_btn:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+    border-color: #c8c0b2;
+  }
+  #signin_btn svg { flex: none; }
   #status {
     font-size: 13px;
     color: #b3564b;
@@ -64,7 +81,15 @@
   <div class="card">
     <h1>日 日 居</h1>
     <p class="subtitle">ERP 系統登入</p>
-    <div id="g_id_signin_container"></div>
+    <button id="signin_btn" type="button">
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.68 9c0-.593.102-1.17.284-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"/>
+      </svg>
+      <span>使用 Google 帳戶登入</span>
+    </button>
     <div id="loading">登入驗證中…</div>
     <div id="status"></div>
     <div class="footnote">僅授權名單內的 Google 帳號可以使用</div>
@@ -74,24 +99,62 @@
   // ── 這兩個值請依實際狀況確認 ──
   var GOOGLE_CLIENT_ID = '163370013190-f4q2mecllsp1otdu4kcj373cimjtjb8e.apps.googleusercontent.com';
   var ERP_EXEC_URL = 'https://script.google.com/macros/s/AKfycbzE9jdV15wMBE1e48779a-i5nHcXiksXsr6MAuHYsGoBFG7Zi0Mh1fpVgmFq2a6iIzBjA/exec';
+  // 這個登入頁自己的網址（必須跟 Google Cloud Console 設定的「已授權的重新導向 URI」完全一致）
+  var REDIRECT_URI = 'https://zezegoodtw-sudo.github.io/riri-booking/riri-erp-login.html';
 
-  function handleCredentialResponse(response) {
+  function startLogin() {
+    var nonce = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    try { sessionStorage.setItem('riri_login_nonce', nonce); } catch (e) {}
+    var params = {
+      client_id: GOOGLE_CLIENT_ID,
+      redirect_uri: REDIRECT_URI,
+      response_type: 'id_token',
+      scope: 'openid email',
+      nonce: nonce,
+      prompt: 'select_account'
+    };
+    var qs = Object.keys(params).map(function (k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+    }).join('&');
+    window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + qs;
+  }
+
+  function parseHash(hash) {
+    var out = {};
+    (hash || '').replace(/^#/, '').split('&').forEach(function (pair) {
+      if (!pair) return;
+      var idx = pair.indexOf('=');
+      if (idx === -1) return;
+      var k = decodeURIComponent(pair.slice(0, idx));
+      var v = decodeURIComponent(pair.slice(idx + 1));
+      out[k] = v;
+    });
+    return out;
+  }
+
+  function handleReturn() {
+    var params = parseHash(window.location.hash);
+    if (params.error) {
+      document.getElementById('status').textContent = '登入失敗：' + params.error;
+      return;
+    }
+    if (!params.id_token) return;
+
+    // 清掉網址上的 hash，避免 token 留在瀏覽器紀錄／網址列
+    history.replaceState(null, '', window.location.pathname);
+
+    document.getElementById('signin_btn').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     document.getElementById('status').textContent = '';
+
     // 直接整頁導向 ERP 系統，並帶上 Google 核發的 id_token
     // 後端會自行向 Google 驗證這個 token 的真偽與白名單
-    window.location.href = ERP_EXEC_URL + '?id_token=' + encodeURIComponent(response.credential);
+    window.location.href = ERP_EXEC_URL + '?id_token=' + encodeURIComponent(params.id_token);
   }
 
   window.onload = function () {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse
-    });
-    google.accounts.id.renderButton(
-      document.getElementById('g_id_signin_container'),
-      { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
-    );
+    document.getElementById('signin_btn').addEventListener('click', startLogin);
+    handleReturn();
   };
 </script>
 </body>

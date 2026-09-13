@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日日居 ERP 登入</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3efe9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 360px;
+    text-align: center;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #2f3b2f;
+    margin: 0 0 4px;
+    letter-spacing: 2px;
+  }
+  p.subtitle {
+    color: #9a9186;
+    font-size: 13px;
+    margin: 0 0 32px;
+  }
+  #g_id_signin_container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  #status {
+    font-size: 13px;
+    color: #b3564b;
+    min-height: 18px;
+    margin-top: 8px;
+  }
+  #loading {
+    font-size: 13px;
+    color: #9a9186;
+    display: none;
+  }
+  .footnote {
+    margin-top: 28px;
+    font-size: 12px;
+    color: #b8b0a4;
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>日 日 居</h1>
+    <p class="subtitle">ERP 系統登入</p>
+    <div id="g_id_signin_container"></div>
+    <div id="loading">登入驗證中…</div>
+    <div id="status"></div>
+    <div class="footnote">僅授權名單內的 Google 帳號可以使用</div>
+  </div>
+
+<script>
+  // ── 這兩個值請依實際狀況確認 ──
+  var GOOGLE_CLIENT_ID = '163370013190-f4q2mecllsp1otdu4kcj373cimjtjb8e.apps.googleusercontent.com';
+  var ERP_EXEC_URL = 'https://script.google.com/macros/s/AKfycbzE9jdV15wMBE1e48779a-i5nHcXiksXsr6MAuHYsGoBFG7Zi0Mh1fpVgmFq2a6iIzBjA/exec';
+
+  function handleCredentialResponse(response) {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('status').textContent = '';
+    // 直接整頁導向 ERP 系統，並帶上 Google 核發的 id_token
+    // 後端會自行向 Google 驗證這個 token 的真偽與白名單
+    window.location.href = ERP_EXEC_URL + '?id_token=' + encodeURIComponent(response.credential);
+  }
+
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('g_id_signin_container'),
+      { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', width: 280 }
+    );
+  };
+</script>
+</body>
+</html>

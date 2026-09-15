@@ -205,6 +205,16 @@
   }
   .cal-dow span { font-size: 12.1px; color: var(--ink3); padding: 4px 0; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-loading {
+    grid-column: 1 / -1; text-align: center; padding: 48px 12px;
+    color: var(--ink3); font-size: 13.7px; line-height: 1.8;
+  }
+  .cal-loading .spin {
+    display: inline-block; width: 22px; height: 22px; margin-bottom: 12px;
+    border: 2.5px solid var(--moss-light); border-top-color: var(--moss);
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
   .cal-day {
     aspect-ratio: 1; display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -564,6 +574,7 @@
   <!-- ── STEP 2: DATE ── -->
   <div id="step2" style="display:none">
     <div class="section-title"><span></span>選擇體驗日期</div>
+    <div class="confirm-loc-badge" id="step2-loc-badge" style="display:inline-block;margin-bottom:16px;"></div>
     <div class="cal-nav">
       <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
       <div class="cal-month" id="cal-month-label"></div>
@@ -1094,6 +1105,19 @@ function goStep(n) {
   }
   updateStepBar(n);
   if (n === 2) {
+    // 選了哪個體驗點，Step 2 的日曆上方也要看得到，不然畫面上完全沒有地點資訊
+    const badge2 = document.getElementById('step2-loc-badge');
+    if (badge2 && state.locationName) {
+      const isMinsheng = state.location === 'minsheng';
+      badge2.textContent = state.locationName;
+      badge2.style.background = isMinsheng ? '#e8f0e8' : '#faf0e8';
+      badge2.style.color = isMinsheng ? '#3d5a3e' : '#c4703a';
+    }
+    // GAS 冷啟動時 getInit/getBookings 常常要 20-40 秒才回應，這段等待期間
+    // 先前是完全空白的日曆格，客人常常以為畫面壞掉，這裡先放一個明確的載入提示
+    document.getElementById('cal-month-label').textContent = '';
+    document.getElementById('cal-grid').innerHTML =
+      '<div class="cal-loading"><div class="spin"></div><br>載入可預約日期中…<br>第一次讀取可能需要 20–40 秒，請稍候</div>';
     // 共用頁面一進來就先打的那個初始資料 promise（getInit 合併 API），已經
     // resolve 過的話這裡會立即接著跑，不會再另外打 loadSchedule／loadOpenMonth
     // 跟它搶 GAS 冷啟動（這正是先前日曆卡住不出現的原因：手速快的話，goStep(2)

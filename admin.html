@@ -905,14 +905,19 @@ async function saveDaySchedule() {
   const shouldBeOpen = defaultOpenDays.includes(dow);
   if (selectedArr.length === 0) slots = shouldBeOpen ? '已滿' : '休息';
 
-  // 更新 scheduleRows
+  // 更新本地 scheduleRows，讓後台畫面立刻反映（實際存檔以 saveScheduleRow 為準）
   const idx = scheduleRows.findIndex(r => String(r.date)===modalDateStr && r.location===locName);
-  if (idx>=0) { scheduleRows[idx].slots = slots; }
+  if (!slots) {
+    // 空字串＝恢復預設，本地也把這筆 override 移除，跟後端刪列的行為一致
+    if (idx>=0) scheduleRows.splice(idx,1);
+  } else if (idx>=0) { scheduleRows[idx].slots = slots; }
   else { scheduleRows.push({ date: modalDateStr, location: locName, slots, note:'' }); }
 
-  // 存回 API
+  // 只更新「這一天這一個地點」這一列，不整表覆蓋——避免同時開多個後台分頁時
+  // 彼此的存檔互相蓋掉對方剛設定的其他日期（先前額滿設定會被別的分頁存檔蓋掉
+  // 的 bug 就是出在這裡，原本是整包 scheduleRows 回傳去覆寫整張表）
   try {
-    const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'saveSchedule', rows:scheduleRows }) });
+    const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'saveScheduleRow', date: modalDateStr, location: locName, slots, note:'' }) });
     const d = await r.json();
     if (d.success) { showToast('已儲存','success'); renderCal(); closeModal(); }
     else showToast('儲存失敗','error');

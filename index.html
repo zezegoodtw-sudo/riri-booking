@@ -930,6 +930,31 @@ async function loadSchedule() {
   }
 }
 
+// 時段設定（後台的開放/額滿/休息覆蓋）跟開放月份，先前只在頁面剛載入時抓過一次
+// （loadSchedule 有 scheduleLoaded 擋掉重複呼叫）。客人如果開著頁面逗留，店家在
+// 這期間於後台改了設定，舊資料會一直卡在記憶體不會更新，導致「後台已設額滿，
+// 前台卻還顯示可預約」。這支無視 scheduleLoaded、每次進 Step 2 都強制重抓最新資料。
+// GAS Web App 的 302 重導向（exec → script.googleusercontent.com/macros/echo）偶爾會卡住
+// 不返回（實測發生過），這裡跟 submitBooking／manualCheckSubmission 一樣加逾時保護，
+// 逾時就放棄重抓、沿用現有資料渲染，不能讓日曆卡在載入畫面出不去。
+async function refreshScheduleAndOpenMonth() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(function(){ controller.abort(); }, 12000);
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(API_URL + '?action=getSchedule', { signal: controller.signal }),
+      fetch(API_URL + '?action=getOpenMonth', { signal: controller.signal }),
+    ]);
+    const [d1, d2] = await Promise.all([r1.json(), r2.json()]);
+    applyScheduleRows(d1.success ? d1.rows : null);
+    applyOpenMonth(d2.success ? d2.openMonth : null);
+  } catch(e) {
+    console.warn('時段設定重新整理失敗或逾時，沿用目前資料', e);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 function applyScheduleRows(rows) {
   if (!rows) return;
   sheetOverrides = {};
@@ -1123,6 +1148,8 @@ function goStep(n) {
     // 跟它搶 GAS 冷啟動（這正是先前日曆卡住不出現的原因：手速快的話，goStep(2)
     // 自己另外發的請求會跟頁面初始那支同時搶執行，冷啟動時間疊加造成長時間空白）
     initDataPromise.then(() => {
+      return refreshScheduleAndOpenMonth();
+    }).then(() => {
       autoAdvanceMonth();
       return ensureBookingsLoaded(viewYear, viewMonth);
     }).then(() => {

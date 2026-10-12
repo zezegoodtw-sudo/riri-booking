@@ -618,8 +618,25 @@
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">預約大名 <span class="req">*</span></label>
-        <input class="form-input" type="text" id="f-name" placeholder="王小明" oninput="validateForm()">
+        <label class="form-label">姓氏 <span class="req">*</span></label>
+        <input class="form-input" type="text" id="f-lastname" placeholder="王" oninput="validateForm()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">名字 <span class="req">*</span></label>
+        <input class="form-input" type="text" id="f-firstname" placeholder="小明" oninput="validateForm()">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">性別 <span class="req">*</span></label>
+        <div class="form-select-wrap">
+          <select class="form-select" id="f-gender" onchange="validateForm()">
+            <option value="">請選擇</option>
+            <option value="先生">男</option>
+            <option value="小姐">女</option>
+          </select>
+        </div>
       </div>
       <div class="form-group">
         <label class="form-label">聯絡電話 <span class="req">*</span></label>
@@ -1332,8 +1349,16 @@ function sourceChanged() {
 }
 
 /* ── FORM VALIDATION ── */
+// 姓氏＋名字＋稱謂組成「王小明 先生」，沿用後端既有的「預約大名」欄位
+function getFullName() {
+  const last   = document.getElementById('f-lastname').value.trim();
+  const first  = document.getElementById('f-firstname').value.trim();
+  const gender = document.getElementById('f-gender').value;
+  return last + first + (gender ? ' ' + gender : '');
+}
+
 function validateForm() {
-  const name = document.getElementById('f-name').value.trim();
+  const name = document.getElementById('f-lastname').value.trim() && document.getElementById('f-firstname').value.trim() && document.getElementById('f-gender').value;
   const rawPhone = document.getElementById('f-phone').value.replace(/[-\s]/g, '');
   const phoneOk = /^09\d{8}$/.test(rawPhone);
   const phoneErr = document.getElementById('phone-err');
@@ -1398,7 +1423,7 @@ function renderConfirm() {
   badge.style.color = isMinsheng ? '#3d5a3e' : '#c4703a';
 
   document.getElementById('c-datetime').textContent = dateStr;
-  document.getElementById('c-name').textContent    = document.getElementById('f-name').value;
+  document.getElementById('c-name').textContent    = getFullName();
   document.getElementById('c-phone').textContent   = document.getElementById('f-phone').value;
   document.getElementById('c-pax').textContent     = document.getElementById('f-pax').value + ' 人';
   document.getElementById('c-product').textContent = getProductValue();
@@ -1680,7 +1705,7 @@ async function submitBooking() {
     location: state.location,
     date:     state.year + '/' + String(state.month+1).padStart(2,'0') + '/' + String(state.day).padStart(2,'0'),
     time:     state.slot + ':00',
-    name:     document.getElementById('f-name').value.trim(),
+    name:     getFullName(),
     phone:    (function(){ var p = document.getElementById('f-phone').value.replace(/\D/g,''); return p.startsWith('0') ? p : '0'+p; })(),
     pax:      document.getElementById('f-pax').value,
     product:  getProductValue(),
@@ -1820,7 +1845,7 @@ function normalizeLookupHour(v) {
 }
 
 function showSuccess(payload) {
-  const name = payload ? payload.name : document.getElementById('f-name').value;
+  const name = payload ? payload.name : getFullName();
   const dow = new Date(state.year, state.month, state.day).getDay();
   const dateStr = (state.month+1) + '月' + state.day + '日（星期' + DAYS_ZH[dow] + '）';
 

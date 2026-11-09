@@ -447,13 +447,19 @@ const HOLIDAY_NAMES = {
   '2027/09/15':'中秋節','2027/09/28':'教師節','2027/10/10':'國慶日','2027/10/11':'國慶補假',
   '2027/10/25':'光復節','2027/12/24':'行憲紀念日補假','2027/12/25':'行憲紀念日','2027/12/31':'元旦補假',
 };
+// 預設開放時段（沒有手動設定的日子，前台就開放這些；須與 index.html DEFAULT_RULES、程式碼.gs BOOKING_RULES 一致）
 const DEFAULT_SLOTS = {
-  minsheng: [11,12,13,14,15,16,17,18],
+  minsheng: [13,14,15,16],
   myzoo:    { 1:[14,15,16], 2:[10,11,14,15,16], 3:[10,11,14,15,16], 4:[10,11,14,15,16], 5:[10,11,14,15,16] }
 };
 // MYZOO 依星期幾取時段
 function getMyzooSlots(dow) {
   return DEFAULT_SLOTS.myzoo[dow] || [10,11,14,15,16];
+}
+// 後台日曆設定可以切換的時段範圍：民生預設只開 13–16，11、12、17、18 等約滿再由店家手動加開
+const MINSHENG_SLOT_RANGE = [11,12,13,14,15,16,17,18];
+function getSlotRange(loc, dateStr) {
+  return loc === 'minsheng' ? MINSHENG_SLOT_RANGE : getDefaultSlots(loc, dateStr);
 }
 function getDefaultSlots(loc, dateStr) {
   if (loc === 'minsheng') return DEFAULT_SLOTS.minsheng;
@@ -870,7 +876,7 @@ function renderModalSlots(dayBookings) {
   );
   const isMyzoo = curLoc==='myzoo';
   // 所有可能時段（預設 + 目前已選）
-  const curSlots = getDefaultSlots(curLoc, modalDateStr);
+  const curSlots = getSlotRange(curLoc, modalDateStr);
   const allHours = Array.from(new Set([...curSlots, ...modalSelectedSlots])).sort((a,b)=>a-b);
 
   document.getElementById('modal-slots').innerHTML = allHours.map(h => {
@@ -940,9 +946,9 @@ function setAllSlots(open) {
   const bookedBtns = document.querySelectorAll('#modal-slots .slot-toggle.booked');
   const bookedHours = new Set([...bookedBtns].map(b => parseInt(b.textContent)));
   if (open) {
-    getDefaultSlots(curLoc, modalDateStr).forEach(h => { if (!bookedHours.has(h)) modalSelectedSlots.add(h); });
+    getSlotRange(curLoc, modalDateStr).forEach(h => { if (!bookedHours.has(h)) modalSelectedSlots.add(h); });
   } else {
-    getDefaultSlots(curLoc, modalDateStr).forEach(h => { if (!bookedHours.has(h)) modalSelectedSlots.delete(h); });
+    getSlotRange(curLoc, modalDateStr).forEach(h => { if (!bookedHours.has(h)) modalSelectedSlots.delete(h); });
   }
   // 重新渲染
   const dayBookings = [];

@@ -251,12 +251,9 @@ hr.divider{border:none;border-top:1px solid var(--card-border);margin:16px 0;}
     <div id="today-bar" style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;"></div>
     <!-- 開放月份控制列 -->
     <div id="open-month-bar" style="background:var(--paper);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);flex-wrap:wrap;">
-      <div style="font-size:13px;color:var(--ink2);">前台開放預約至：</div>
+      <div style="font-size:13px;color:var(--ink2);">前台可預約範圍：</div>
       <div style="font-size:15px;font-weight:500;color:var(--moss);" id="open-month-display">載入中...</div>
-      <div style="margin-left:auto;display:flex;gap:8px;">
-        <button onclick="changeOpenMonth(-1)" style="padding:7px 14px;background:var(--paper2);color:var(--ink2);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;">← 縮減</button>
-        <button onclick="changeOpenMonth(1)" style="padding:7px 14px;background:var(--moss);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;cursor:pointer;">開放下個月 →</button>
-      </div>
+      <div style="font-size:12px;color:var(--ink3);margin-left:auto;">今天起滾動 3 個月，每天自動往後推，不用手動開放</div>
     </div>
 
     <div class="cal-controls">
@@ -556,73 +553,24 @@ function parseTimeHour(t) {
 
 // ── SUMMARY ──────────────────────────────────────────────
 // ── 開放月份管理 ─────────────────────────────────────────
-let currentOpenMonth = null; // 'yyyy/MM'
-
-async function loadOpenMonth() {
-  try {
-    const r = await fetch(API_URL + '?action=getOpenMonth');
-    const d = await r.json();
-    applyOpenMonth(d.success ? d.openMonth : null);
-  } catch(e) {
-    applyOpenMonth(null);
-  }
+// 已改為滾動 3 個月（2026-11-10），算法與前台 index.html、後端 getBookingWindowEnd 一致
+function getBookingWindowEnd() {
+  const now = new Date();
+  let ty = now.getFullYear(), tm = now.getMonth() + 3;
+  ty += Math.floor(tm / 12); tm = tm % 12;
+  const lastDay = new Date(ty, tm + 1, 0).getDate();
+  return new Date(ty, tm, Math.min(now.getDate(), lastDay));
 }
 
-function applyOpenMonth(val) {
-  if (val) {
-    currentOpenMonth = val;
-  } else {
-    // 預設為當月
-    const now = new Date();
-    currentOpenMonth = now.getFullYear() + '/' + String(now.getMonth()+1).padStart(2,'0');
-  }
-  renderOpenMonthBar();
-}
+function loadOpenMonth() { renderOpenMonthBar(); }
+function applyOpenMonth() { renderOpenMonthBar(); }
 
 function renderOpenMonthBar() {
   const el = document.getElementById('open-month-display');
   if (!el) return;
-  if (!currentOpenMonth) {
-    el.textContent = '（未設定，僅當月）';
-    el.style.color = 'var(--pending)';
-    return;
-  }
-  // 移除可能的單引號前綴
-  const clean = currentOpenMonth.replace(/^'+/, '').trim();
-  const parts = clean.split('/');
-  const y = parseInt(parts[0]);
-  const m = parseInt(parts[1]);
-  const now = new Date();
-  const thisY = now.getFullYear();
-  const thisM = now.getMonth() + 1;
-  const isCurrent = (y === thisY && m === thisM);
-  el.textContent = y + ' 年 ' + m + ' 月' + (isCurrent ? '（僅當月）' : '');
-  el.style.color = isCurrent ? 'var(--pending)' : 'var(--confirmed)';
-}
-
-async function changeOpenMonth(dir) {
-  if (!currentOpenMonth) return;
-  const clean = (currentOpenMonth || '').replace(/^'+/, '').trim();
-  const parts = clean.split('/');
-  let y = parseInt(parts[0]);
-  let m = parseInt(parts[1]) + dir;
-  if (m > 12) { m = 1; y++; }
-  if (m < 1)  { m = 12; y--; }
-  // 不能比當月更早
-  const now = new Date();
-  if (y < now.getFullYear() || (y === now.getFullYear() && m < now.getMonth()+1)) {
-    showToast('不能設定早於當月', 'error'); return;
-  }
-  const newMonth = y + '/' + String(m).padStart(2,'0');
-  try {
-    const r = await fetch(API_URL, { method:'POST', body: JSON.stringify({ action:'setOpenMonth', openMonth: newMonth }) });
-    const d = await r.json();
-    if (d.success) {
-      currentOpenMonth = newMonth;
-      renderOpenMonthBar();
-      showToast(dir > 0 ? '已開放 ' + y + ' 年 ' + m + ' 月' : '已縮減至 ' + y + ' 年 ' + m + ' 月', 'success');
-    }
-  } catch(e) { showToast('設定失敗', 'error'); }
+  const now = new Date(), end = getBookingWindowEnd();
+  const f = d => d.getFullYear() + '/' + (d.getMonth()+1) + '/' + d.getDate();
+  el.textContent = f(now) + ' ～ ' + f(end);
 }
 
 function renderTodayBar() {

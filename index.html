@@ -893,8 +893,8 @@ function autoAdvanceMonth() {
   }
 }
 
-// 後台設定的開放最大月份
-let openMonthSetting = null; // 'yyyy/MM' 或 null（null 則用當月）
+// 後端回傳的開放月份（已改為滾動 3 個月，前台自行計算範圍，這個值只保留不再使用）
+let openMonthSetting = null;
 
 async function loadOpenMonth() {
   try {
@@ -911,19 +911,25 @@ function applyOpenMonth(val) {
   }
 }
 
+// 可預約範圍：今天起滾動 3 個月（2026-11-10 起取代後台每月手動／21 日自動開放）。
+// 算法：同一天的 3 個月後；該月沒有對應日期時取該月最後一天（例：11/30 → 2/28）。
+// 後端 程式碼.gs 的 getBookingWindowEnd() 用同樣算法並會再驗證一次，兩邊要一致。
+const BOOKING_WINDOW_MONTHS = 3;
+function getBookingWindowEnd() {
+  const now = new Date();
+  let ty = now.getFullYear(), tm = now.getMonth() + BOOKING_WINDOW_MONTHS;
+  ty += Math.floor(tm / 12); tm = tm % 12;
+  const lastDay = new Date(ty, tm + 1, 0).getDate();
+  return new Date(ty, tm, Math.min(now.getDate(), lastDay));
+}
+function isBeyondBookingWindow(y, m, d) {
+  return new Date(y, m, d) > getBookingWindowEnd();
+}
+
 function getBookableRange() {
   const now = new Date(); now.setHours(0,0,0,0);
-  const thisY = now.getFullYear();
-  const thisM = now.getMonth();
-  let maxY = thisY, maxM = thisM;
-
-  if (openMonthSetting) {
-    const parts = openMonthSetting.split('/');
-    maxY = parseInt(parts[0]);
-    maxM = parseInt(parts[1]) - 1; // 0-indexed
-  }
-
-  return { minY: thisY, minM: thisM, maxY, maxM };
+  const end = getBookingWindowEnd();
+  return { minY: now.getFullYear(), minM: now.getMonth(), maxY: end.getFullYear(), maxM: end.getMonth() };
 }
 
 function isMonthAllowed(y, m) {
@@ -1076,6 +1082,9 @@ function getDateStatus(loc, y, m, d) {
   if (!rule) return 'closed';
   const dow     = new Date(y, m, d).getDay();
   const dateStr = y + '/' + String(m+1).padStart(2,'0') + '/' + String(d).padStart(2,'0');
+  // 超過滾動 3 個月範圍的日期一律不可預約
+  if (isBeyondBookingWindow(y, m, d)) return 'closed';
+
   const override = getSheetOverride(loc, y, m, d);
 
   // Sheets 覆蓋優先
